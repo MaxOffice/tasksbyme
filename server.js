@@ -1,0 +1,81 @@
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+
+// Import routes
+const authRoutes = require('./src/routes/auth');
+const apiRoutes = require('./src/routes/api');
+const schedulerRoutes = require('./src/routes/scheduler');
+const { requireAuth } = require('./src/auth/authMiddleware');
+const { startScheduler } = require('./src/services/schedulerService');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Session configuration
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'src/public')));
+
+// Routes
+app.use('/auth', authRoutes);
+app.use('/api', apiRoutes);
+app.use('/scheduler', schedulerRoutes);
+
+// Root route
+app.get('/', (req, res) => {
+    if (req.session && req.session.account) {
+        res.redirect('/dashboard');
+    } else {
+        res.send(`
+            <html>
+                <head><title>Planner Task Tracker</title></head>
+                <body style="font-family: Arial, sans-serif; text-align: center; margin-top: 100px;">
+                    <h1>Planner Task Tracker</h1>
+                    <p>Track your Microsoft Planner tasks</p>
+                    <a href="/auth/login" style="background: #0078d4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                        Sign in with Microsoft
+                    </a>
+                </body>
+            </html>
+        `);
+    }
+});
+
+// Protected dashboard route (placeholder)
+app.get('/dashboard', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/public/dashboard.html'))
+    // res.send(`
+    //     <html>
+    //         <head><title>Dashboard</title></head>
+    //         <body style="font-family: Arial, sans-serif; margin: 20px;">
+    //             <h1>Welcome, ${req.session.account.name}</h1>
+    //             <p>Email: ${req.session.account.username}</p>
+    //             <p>Dashboard coming soon...</p>
+    //             <a href="/auth/logout">Logout</a>
+    //         </body>
+    //     </html>
+    // `);
+});
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log('Environment:', process.env.NODE_ENV || 'development');
+    
+    // Start background scheduler
+    startScheduler();
+});
