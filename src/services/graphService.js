@@ -18,7 +18,7 @@ function getGraphClient(accessToken) {
 async function getUserProfile(accessToken) {
     try {
         const client = getGraphClient(accessToken);
-        const user = await client.api('/me').get();
+        const user = await client.api('/me?$select=id,displayName,userPrincipalName,mail').get();
         return {
             id: user.id,
             displayName: user.displayName,
@@ -55,7 +55,7 @@ async function getUserPlans(accessToken) {
         //     }
         // }
 
-        const plannerPlans = await client.api('/me/planner/plans').get();
+        const plannerPlans = await client.api('/me/planner/plans?$select=id,title').get();
         plans.push(...plannerPlans.value);
         
         return plans;

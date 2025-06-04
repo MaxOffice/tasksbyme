@@ -26,8 +26,8 @@ const cca = new ConfidentialClientApplication(msalConfig);
 // Scopes for Microsoft Graph API
 const graphScopes = [
     'User.Read',
-    'Group.Read.All',
-    'Tasks.Read'
+    'Tasks.Read',
+    'Tasks.Read.Shared'
 ];
 
 // Authentication request configuration

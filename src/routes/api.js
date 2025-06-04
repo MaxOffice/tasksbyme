@@ -43,7 +43,7 @@ router.get('/tasks', requireAuthApi, async (req, res) => {
 /**
  * Manually refresh tasks from Microsoft Graph
  */
-router.post('/refresh', requireAuth, ensureAccessToken, async (req, res) => {
+router.post('/refresh', requireAuthApi, ensureAccessToken, async (req, res) => {
     try {
         const userId = req.session.account.localAccountId;
         const accessToken = req.accessToken;
