@@ -2,7 +2,7 @@ class TaskTracker {
     constructor() {
         this.tasks = [];
         this.filteredTasks = [];
-        this.currentView = 'card';
+        this.currentView = 'table';
         this.filters = {
             plan: '',
             status: '',
@@ -200,11 +200,18 @@ class TaskTracker {
                     return a.title.localeCompare(b.title);
                 case 'createdDate':
                     return new Date(b.createdDateTime) - new Date(a.createdDateTime);
+                case 'createdDateDesc':
+                    return new Date(a.createdDateTime) - new Date(b.createdDateTime);
                 case 'dueDate':
                     if (!a.dueDateTime && !b.dueDateTime) return 0;
                     if (!a.dueDateTime) return 1;
                     if (!b.dueDateTime) return -1;
                     return new Date(a.dueDateTime) - new Date(b.dueDateTime);
+                case 'dueDateDesc':
+                    if (!a.dueDateTime && !b.dueDateTime) return 0;
+                    if (!b.dueDateTime) return 1;
+                    if (!a.dueDateTime) return -1;
+                    return new Date(b.dueDateTime) - new Date(a.dueDateTime);
                 case 'priority':
                     const priorityOrder = { 'urgent': 0, 'important': 1, 'medium': 2, 'low': 3 };
                     return (priorityOrder[a.priority] || 4) - (priorityOrder[b.priority] || 4);
@@ -306,8 +313,7 @@ class TaskTracker {
         return `
             <tr>
                 <td>
-                    <strong>${this.escapeHtml(task.title)}</strong>
-                    ${task.priority ? `<br><small><i class="fas fa-flag"></i> ${this.formatPriority(task.priority)}</small>` : ''}
+                    <strong><a href="/planner/go/${task.id}" target="_blank">${this.escapeHtml(task.title)}</a></strong>
                 </td>
                 <td>${this.escapeHtml(task.planTitle)}</td>
                 <td><span class="task-status status-${status}">${this.formatStatus(status)}</span></td>
@@ -315,6 +321,19 @@ class TaskTracker {
                 <td>${this.formatDate(task.createdDateTime)}</td>
             </tr>
         `;
+
+        // return `
+        //     <tr>
+        //         <td>
+        //             <strong>${this.escapeHtml(task.title)}</strong>
+        //             ${task.priority ? `<br><small><i class="fas fa-flag"></i> ${this.formatPriority(task.priority)}</small>` : ''}
+        //         </td>
+        //         <td>${this.escapeHtml(task.planTitle)}</td>
+        //         <td><span class="task-status status-${status}">${this.formatStatus(status)}</span></td>
+        //         <td>${task.dueDateTime ? this.formatDate(task.dueDateTime) : '-'}</td>
+        //         <td>${this.formatDate(task.createdDateTime)}</td>
+        //     </tr>
+        // `;
     }
 
     switchView (view) {

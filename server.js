@@ -7,6 +7,7 @@ const path = require('path');
 const authRoutes = require('./src/routes/auth');
 const apiRoutes = require('./src/routes/api');
 const schedulerRoutes = require('./src/routes/scheduler');
+const goRoutes = require('./src/routes/go');
 const { requireAuth } = require('./src/auth/authMiddleware');
 const { startScheduler } = require('./src/services/schedulerService');
 
@@ -34,6 +35,7 @@ app.use(express.static(path.join(__dirname, 'src/public')));
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/scheduler', schedulerRoutes);
+app.use('/planner', goRoutes);
 
 // Root route
 app.get('/', (req, res) => {
