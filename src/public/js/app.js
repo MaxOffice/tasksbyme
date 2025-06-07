@@ -343,11 +343,13 @@ class TaskTracker {
         this.applyFilters();
     }
 
-    updateStats (stats) {
-        document.getElementById('totalTasks').textContent = stats.total || 0;
+    updateStats (statsData) {
+        console.log(statsData)
+        const stats = statsData.stats
+        document.getElementById('totalTasks').textContent = stats.totalTasks || 0;
         document.getElementById('completedTasks').textContent = stats.completed || 0;
         document.getElementById('inProgressTasks').textContent = stats.inProgress || 0;
-        document.getElementById('overdueTasks').textContent = stats.overdue || 0;
+        document.getElementById('notStartedTasks').textContent = stats.notStarted || 0;
     }
 
     updateTaskCount () {
