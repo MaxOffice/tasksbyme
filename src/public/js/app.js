@@ -1,3 +1,6 @@
+// Define the cache expiration time in milliseconds (1 hour)
+const CACHE_EXPIRATION_TIME = 60 * 60 * 1000; // 1 hour in milliseconds
+
 class TaskTracker {
     constructor() {
         this.tasks = [];
@@ -9,6 +12,8 @@ class TaskTracker {
             search: '',
             sortBy: 'dueDate'
         };
+
+        this.userCache = new Map();
 
         this.init();
     }
@@ -49,6 +54,44 @@ class TaskTracker {
         } catch (error) {
             console.error('API request failed:', error);
             throw error;
+        }
+    }
+
+    async fetchUserDetails (userId) {
+        console.log(`[CACHE MISS/EXPIRED] Fetching fresh details for user: ${userId}`);
+        const response = await this.makeAuthenticatedRequest(`/api/users/${userId}`);
+        if (!response.ok) {
+            console.log(`[ERROR]: Could not fetch details for user id ${userId}`);
+            return;
+        }
+        const freshUserDetails = await response.json();
+
+        this.userCache.set(userId, {
+            userDetails: freshUserDetails,
+            timestamp: Date.now(),
+        });
+        console.log(`[CACHE UPDATE] Cached fresh details for user: ${userId}`);
+
+    }
+
+    getUserDetails (userId) {
+        const cachedEntry = this.userCache.get(userId);
+        const currentTime = Date.now();
+
+        if (cachedEntry && (currentTime - cachedEntry.timestamp < CACHE_EXPIRATION_TIME)) {
+            console.log(`[CACHE HIT] Returning cached details for user: ${userId}`);
+            return {
+                id: userId,
+                userDetails: cachedEntry.userDetails,
+                status: 'cached'
+            };
+        } else {
+            this.fetchUserDetails(userId);
+            return {
+                id: userId,
+                userDetails: { displayName: 'Unknown' },
+                status: 'requested'
+            };
         }
     }
 
@@ -260,7 +303,7 @@ class TaskTracker {
                             <th>Plan</th>
                             <th>Status</th>
                             <th>Due Date</th>
-                            <th>Created</th>
+                            <th>Assigned to</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -310,6 +353,14 @@ class TaskTracker {
     createTaskRow (task) {
         const status = this.getTaskStatus(task.percentComplete);
 
+        const assignedTo = Object.keys(task.assignments).map(key => {
+            const user = this.getUserDetails(key);
+            if (user.userDetails.displayName === 'Unknown') {
+                user.userDetails.displayName = "Loading...";
+            }
+            return `<span data-id="${key}" data-status="${user.status}" class="aduser">${user.userDetails.displayName}</span>`;
+        }).join('');
+
         return `
             <tr>
                 <td>
@@ -318,7 +369,7 @@ class TaskTracker {
                 <td>${this.escapeHtml(task.planTitle)}</td>
                 <td><span class="task-status status-${status}">${this.formatStatus(status)}</span></td>
                 <td>${task.dueDateTime ? this.formatDate(task.dueDateTime) : '-'}</td>
-                <td>${this.formatDate(task.createdDateTime)}</td>
+                <td>${assignedTo}</td>
             </tr>
         `;
 
@@ -408,6 +459,19 @@ class TaskTracker {
                 console.warn('Heartbeat failed:', error);
             }
         }, 30000);
+
+        // Load pending user details every 10 seconds
+        setInterval(async () => {
+            const pendingUsers = document.querySelectorAll('span.aduser[data-status="requested"]');
+            pendingUsers.forEach(e => {
+                const userId = e.getAttribute('data-id');
+                const details = this.getUserDetails(userId);
+                if (details.status === 'cached') {
+                    e.setAttribute('data-status', 'cached');
+                    e.textContent = details.userDetails.displayName;
+                }
+            });
+        }, 10000);
     }
 
     // Utility methods
