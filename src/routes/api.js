@@ -1,10 +1,32 @@
 const express = require('express');
-const { requireAuth, requireAuthApi, ensureAccessToken } = require('../auth/authMiddleware');
+const { requireAuthApi, ensureAccessToken } = require('../auth/authMiddleware');
 const { getComprehensiveUserTasks } = require('../services/graphService');
 const { storeUserTasks, getFilteredTasks, getUserDataStats } = require('../services/dataService');
 const { updateUserActivity } = require('../services/schedulerService');
+const { getUserDetails } = require('../services/profileService');
 
 const router = express.Router();
+
+/**
+ * Get details of the specified user from cache or Graph API
+ */
+router.get('/users/:id', requireAuthApi, ensureAccessToken, async (req, res) => {
+    const accessToken = req.accessToken;
+
+    const userId = req.params.id;
+
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required.' });
+    }
+
+    try {
+        const userDetails = await getUserDetails(accessToken, userId);
+        return res.status(200).json(userDetails);
+    } catch (error) {
+        console.error(`[ERROR] Failed to fetch user ${userId} details:`, error.message);
+        return res.status(500).json({ error: 'Failed to retrieve user details.', details: error.message });
+    }
+});
 
 /**
  * Get user's tasks (from local storage)
@@ -12,10 +34,10 @@ const router = express.Router();
 router.get('/tasks', requireAuthApi, async (req, res) => {
     try {
         const userId = req.session.account.localAccountId;
-        
+
         // Update user activity
         updateUserActivity(userId);
-        
+
         // Parse query parameters
         const options = {
             status: req.query.status,
@@ -24,7 +46,7 @@ router.get('/tasks', requireAuthApi, async (req, res) => {
             sortBy: req.query.sortBy || 'createdDateTime',
             sortOrder: req.query.sortOrder || 'desc'
         };
-        
+
         const tasks = await getFilteredTasks(userId, options);
         res.json({
             success: true,
@@ -47,15 +69,15 @@ router.post('/refresh', requireAuthApi, ensureAccessToken, async (req, res) => {
     try {
         const userId = req.session.account.localAccountId;
         const accessToken = req.accessToken;
-        
+
         console.log(`Manual refresh triggered for user ${userId}`);
-        
+
         // Fetch fresh data from Microsoft Graph
         const tasks = await getComprehensiveUserTasks(accessToken);
-        
+
         // Store in local storage
         await storeUserTasks(userId, tasks);
-        
+
         res.json({
             success: true,
             message: 'Tasks refreshed successfully',
@@ -79,7 +101,7 @@ router.get('/stats', requireAuthApi, async (req, res) => {
     try {
         const userId = req.session.account.localAccountId;
         const stats = await getUserDataStats(userId);
-        
+
         res.json({
             success: true,
             stats
@@ -100,7 +122,7 @@ router.get('/filters', requireAuthApi, async (req, res) => {
     try {
         const userId = req.session.account.localAccountId;
         const tasks = await getFilteredTasks(userId);
-        
+
         // Extract unique values for filters
         const plans = [...new Set(tasks.map(t => ({ id: t.planId, title: t.planTitle })))];
         const statuses = [
@@ -108,7 +130,7 @@ router.get('/filters', requireAuthApi, async (req, res) => {
             { value: 'inProgress', label: 'In Progress', count: tasks.filter(t => t.percentComplete > 0 && t.percentComplete < 100).length },
             { value: 'completed', label: 'Completed', count: tasks.filter(t => t.percentComplete === 100).length }
         ];
-        
+
         res.json({
             success: true,
             filters: {

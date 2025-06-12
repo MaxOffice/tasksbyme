@@ -26,6 +26,7 @@ const cca = new ConfidentialClientApplication(msalConfig);
 // Scopes for Microsoft Graph API
 const graphScopes = [
     'User.Read',
+    'User.ReadBasic.All',
     'Tasks.Read',
     'Tasks.Read.Shared'
 ];

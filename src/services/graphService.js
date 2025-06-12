@@ -32,6 +32,24 @@ async function getUserProfile(accessToken) {
 }
 
 /**
+ * Get another user's profile information
+ */
+async function getOtherUserProfile(accessToken, userId) {
+    try {
+        const client = getGraphClient(accessToken);
+        const user = await client.api(`/users/${userId}?$select=id,displayName,mail`).get();
+        return {
+            id: user.id,
+            displayName: user.displayName,
+            mail: user.mail
+        };
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        throw error;
+    }
+}
+
+/**
  * Get all plans available to the current user
  */
 async function getUserPlans(accessToken) {
@@ -169,6 +187,7 @@ async function getComprehensiveUserTasks(accessToken) {
 
 module.exports = {
     getUserProfile,
+    getOtherUserProfile,
     getUserPlans,
     getPlanTasks,
     getUserCreatedTasks,
