@@ -308,6 +308,7 @@ class TaskTracker {
                     <thead>
                         <tr>
                             <th>Task</th>
+                            <th>Priority</th>
                             <th>Plan</th>
                             <th>Status</th>
                             <th>Due Date</th>
@@ -374,6 +375,7 @@ class TaskTracker {
                 <td>
                     <strong><a href="/planner/go/${task.id}" target="_blank">${this.escapeHtml(task.title)}</a></strong>
                 </td>
+                <td class="text-center">${task.priority}</td>
                 <td>${this.escapeHtml(task.planTitle)}</td>
                 <td><span class="task-status status-${status}">${this.formatStatus(status)}</span></td>
                 <td>${task.dueDateTime ? this.formatDate(task.dueDateTime) : '-'}</td>
