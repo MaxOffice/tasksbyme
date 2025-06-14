@@ -138,6 +138,10 @@ class TaskTracker {
         document.getElementById('filterSortBtn').addEventListener('click', () => {
             document.getElementById('controlsSection').classList.toggle('hidden');
         });
+
+        document.getElementById('closeBtn').addEventListener('click', ()=>{
+            document.getElementById('controlsSection').classList.add('hidden');
+        })
     }
 
     async loadTasks () {

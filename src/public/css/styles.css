@@ -150,6 +150,23 @@ body {
     height: 100%;
 }
 
+.toolheader {
+    display: flex;
+    margin: -1.5rem 0 0 0;
+    padding: 0.1rem 0.1rem;
+    align-content: last baseline;
+}
+
+.tooltitle {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.closebutton {
+    margin-left: auto;
+    cursor: pointer;
+}
+
 .filters {
     display: flex;
     flex-wrap: wrap;
@@ -228,6 +245,10 @@ body {
 .stat-label {
     font-size: 0.9rem;
     opacity: 0.9;
+}
+
+.stat-item div {
+    display: inline-block;
 }
 
 /* Main Content */
@@ -439,6 +460,10 @@ body {
 
     .tasks-table {
         margin: 0 0;
+    }
+
+    .stat-item {
+        display: none;
     }
 }
 

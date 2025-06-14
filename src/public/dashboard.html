@@ -15,6 +15,22 @@
         <header class="header">
             <div class="container">
                 <h1><i class="fas fa-tasks"></i> Planner Task Tracker</h1>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completedTasks">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="inProgressTasks">0</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="notStartedTasks">0</div>
+                    <div class="stat-label">Not Started</div>
+                </div>
                 <div class="header-actions">
                     <button id="filterSortBtn" class="btn btn-secondary">
                         <i class="fa-solid fa-filter"></i>Filter/Sort
@@ -48,7 +64,7 @@
         <div class="stats-section">
             <div class="container">
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <!-- <div class="stat-card">
                         <div class="stat-number" id="totalTasks">0</div>
                         <div class="stat-label">Total Tasks</div>
                     </div>
@@ -63,7 +79,7 @@
                     <div class="stat-card">
                         <div class="stat-number" id="notStartedTasks">0</div>
                         <div class="stat-label">Not Started</div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -71,6 +87,14 @@
         <!-- Filters & Controls -->
         <div id="controlsSection" class="controls-section hidden">
             <div class="container">
+                <div class="toolheader">
+                    <div class="tooltitle">
+                        Filter and sort
+                    </div>
+                    <div id="closeBtn" class="closebutton">
+                        <i class='fa fa-close'></i>
+                    </div>
+                </div>
                 <div class="filters">
                     <div class="filter-group">
                         <label for="planFilter">Plan:</label>
