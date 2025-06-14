@@ -14,8 +14,10 @@ body {
 
 .container {
     max-width: 1200px;
+    /* max-width: calc(100vw - 2rem); */
     margin: 0 auto;
     padding: 0 20px;
+    /* padding: 0; */
 }
 
 /* Header */
@@ -105,6 +107,11 @@ body {
     background-color: white;
     border-bottom: 1px solid #e0e0e0;
     padding: 0.75rem 0;
+
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
 }
 
 .status-info {
@@ -134,6 +141,13 @@ body {
     background-color: white;
     padding: 1.5rem 0;
     border-bottom: 1px solid #e0e0e0;
+    /* Making it a tool panel */
+    position: fixed;
+    padding: 1.5rem 0.5rem;
+    z-index: 100;
+    opacity: 0.95;
+    width: 20rem;
+    height: 100%;
 }
 
 .filters {
@@ -218,7 +232,7 @@ body {
 
 /* Main Content */
 .main-content {
-    padding: 2rem 0;
+    padding: 1rem 0 4rem 0;
 }
 
 .view-toggle {
@@ -407,6 +421,12 @@ body {
 
     .view-toggle {
         justify-content: center;
+    }
+
+    .controls-section {
+        position: initial;
+        width: initial;
+        height: initial;
     }
 }
 

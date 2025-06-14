@@ -134,6 +134,10 @@ class TaskTracker {
         document.getElementById('clearFilters').addEventListener('click', () => {
             this.clearFilters();
         });
+
+        document.getElementById('filterSortBtn').addEventListener('click', () => {
+            document.getElementById('controlsSection').classList.toggle('hidden');
+        });
     }
 
     async loadTasks () {
