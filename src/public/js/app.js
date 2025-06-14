@@ -362,7 +362,7 @@ class TaskTracker {
             if (user.userDetails.displayName === 'Unknown') {
                 user.userDetails.displayName = "Loading...";
             }
-            return `<span data-id="${key}" data-status="${user.status}" class="aduser">${user.userDetails.displayName}</span>`;
+            return `<span data-id="${key}" data-status="${user.status}" class="task-status aduser">${user.userDetails.displayName}</span>`;
         }).join('');
 
         return `
