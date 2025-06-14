@@ -424,7 +424,7 @@ class TaskTracker {
         const notStartedOption = document.querySelector('select#statusFilter option[value="notStarted"]');
         const inProgressOption = document.querySelector('select#statusFilter option[value="inProgress"]');
         const completedOption = document.querySelector('select#statusFilter option[value="completed"]');
-        
+
         document.getElementById('totalTasks').textContent = stats.totalTasks || 0;
         document.getElementById('completedTasks').textContent = stats.completed || 0;
         document.getElementById('inProgressTasks').textContent = stats.inProgress || 0;
@@ -523,9 +523,46 @@ class TaskTracker {
         return priority //? priority.charAt(0).toUpperCase() + priority.slice(1) : "NONE";
     }
 
+    formatDateTimeWithIntl (date) {
+        // Options for the desired date and time format
+        const options = {
+            day: '2-digit',
+            month: 'short', // 'short' for Mmm (e.g., Jun)
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true // true for AM/PM
+        };
+
+        // Create a formatter for 'en-US' locale
+        const formatter = new Intl.DateTimeFormat('en-US', options);
+
+        // Format the date
+        let formattedString = formatter.format(date);
+
+        // Intl.DateTimeFormat might output "8 PM" or "8 AM". We need to ensure "pm" or "am".
+        // This step is a small adjustment for the exact "8:50pm" format.
+        // Intl.DateTimeFormat might also add a comma after the day, depending on locale.
+        // Let's re-assemble for precise control over the output structure.
+
+        const day = new Intl.DateTimeFormat('en-US', { day: '2-digit' }).format(date);
+        const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
+        const year = new Intl.DateTimeFormat('en-US', { year: 'numeric' }).format(date);
+
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'pm' : 'am';
+
+        hours = hours % 12;
+        hours = hours ? String(hours).padStart(2, '0') : '12'; // The hour '0' should be '12', padded.
+
+        return `${day}-${month}-${year}, ${hours}:${minutes}${ampm}`;
+    }
+
     formatDate (dateString) {
         const date = new Date(dateString);
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        //return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return this.formatDateTimeWithIntl(date);
     }
 
     escapeHtml (text) {

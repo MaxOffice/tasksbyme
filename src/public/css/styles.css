@@ -13,11 +13,11 @@ body {
 }
 
 .container {
-    max-width: 1200px;
-    /* max-width: calc(100vw - 2rem); */
+    /* max-width: 1200px; */
+    max-width: calc(100vw - 2rem);
     margin: 0 auto;
-    padding: 0 20px;
-    /* padding: 0; */
+    /* padding: 0 20px; */
+    padding: 0;
 }
 
 /* Header */
@@ -363,9 +363,10 @@ body {
 
 .tasks-table {
     background: white;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin: 0 -1rem;;
 }
 
 .tasks-table table {
@@ -375,7 +376,7 @@ body {
 
 .tasks-table th,
 .tasks-table td {
-    padding: 1rem;
+    padding: 0.25rem;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
 }
@@ -434,6 +435,10 @@ body {
         position: initial;
         width: initial;
         height: initial;
+    }
+
+    .tasks-table {
+        margin: 0 0;
     }
 }
 
