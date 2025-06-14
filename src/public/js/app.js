@@ -416,10 +416,21 @@ class TaskTracker {
     updateStats (statsData) {
         console.log(statsData)
         const stats = statsData.stats
+        const allStatusOption = document.querySelector('select#statusFilter option[value=""]');
+        const notStartedOption = document.querySelector('select#statusFilter option[value="notStarted"]');
+        const inProgressOption = document.querySelector('select#statusFilter option[value="inProgress"]');
+        const completedOption = document.querySelector('select#statusFilter option[value="completed"]');
+        
         document.getElementById('totalTasks').textContent = stats.totalTasks || 0;
         document.getElementById('completedTasks').textContent = stats.completed || 0;
         document.getElementById('inProgressTasks').textContent = stats.inProgress || 0;
         document.getElementById('notStartedTasks').textContent = stats.notStarted || 0;
+
+        allStatusOption.textContent = `All Status (${stats.totalTasks || 0})`;
+        notStartedOption.textContent = `Not Started (${stats.notStarted || 0})`;
+        inProgressOption.textContent = `In Progress (${stats.inProgress || 0})`;
+        completedOption.textContent = `Completed (${stats.completed || 0})`;
+
     }
 
     updateTaskCount () {
