@@ -1,6 +1,11 @@
 // Define the cache expiration time in milliseconds (1 hour)
 const CACHE_EXPIRATION_TIME = 60 * 60 * 1000; // 1 hour in milliseconds
-
+const priorityLookup = {
+    1: 'Urgent',
+    9: 'Low',
+    3: 'Important',
+    5: 'Medium'
+}
 class TaskTracker {
     constructor() {
         this.tasks = [];
@@ -18,7 +23,7 @@ class TaskTracker {
         this.init();
     }
 
-    async init () {
+    async init() {
         this.bindEvents();
         this.showLoading(true);
         await this.loadTasks();
@@ -27,7 +32,7 @@ class TaskTracker {
         this.startHeartbeat();
     }
 
-    async checkAuthStatus () {
+    async checkAuthStatus() {
         try {
             const response = await this.makeAuthenticatedRequest('/api/auth/status');
             return response.ok;
@@ -36,7 +41,7 @@ class TaskTracker {
         }
     }
 
-    async makeAuthenticatedRequest (url, options = {}) {
+    async makeAuthenticatedRequest(url, options = {}) {
         try {
             const response = await fetch(url, options);
 
@@ -57,7 +62,7 @@ class TaskTracker {
         }
     }
 
-    async fetchUserDetails (userId) {
+    async fetchUserDetails(userId) {
         console.log(`[CACHE MISS/EXPIRED] Fetching fresh details for user: ${userId}`);
         const response = await this.makeAuthenticatedRequest(`/api/users/${userId}`);
         if (!response.ok) {
@@ -74,7 +79,7 @@ class TaskTracker {
 
     }
 
-    getUserDetails (userId) {
+    getUserDetails(userId) {
         const cachedEntry = this.userCache.get(userId);
         const currentTime = Date.now();
 
@@ -95,7 +100,7 @@ class TaskTracker {
         }
     }
 
-    bindEvents () {
+    bindEvents() {
         // Refresh button
         document.getElementById('refreshBtn').addEventListener('click', () => {
             this.refreshTasks();
@@ -139,12 +144,12 @@ class TaskTracker {
             document.getElementById('controlsSection').classList.toggle('hidden');
         });
 
-        document.getElementById('closeBtn').addEventListener('click', ()=>{
+        document.getElementById('closeBtn').addEventListener('click', () => {
             document.getElementById('controlsSection').classList.add('hidden');
         })
     }
 
-    async loadTasks () {
+    async loadTasks() {
         try {
             this.updateSyncStatus('updating', 'Loading tasks...');
 
@@ -169,7 +174,7 @@ class TaskTracker {
         }
     }
 
-    async loadStats () {
+    async loadStats() {
         try {
             const response = await this.makeAuthenticatedRequest('/api/stats');
             if (!response.ok) return;
@@ -181,7 +186,7 @@ class TaskTracker {
         }
     }
 
-    async refreshTasks () {
+    async refreshTasks() {
         const refreshBtn = document.getElementById('refreshBtn');
         const originalText = refreshBtn.innerHTML;
 
@@ -208,7 +213,7 @@ class TaskTracker {
         }
     }
 
-    populateFilters () {
+    populateFilters() {
         const planFilter = document.getElementById('planFilter');
         const plans = [...new Set(this.tasks.map(task => task.planTitle))].sort();
 
@@ -223,7 +228,7 @@ class TaskTracker {
         });
     }
 
-    applyFilters () {
+    applyFilters() {
         let filtered = [...this.tasks];
 
         // Apply plan filter
@@ -264,8 +269,9 @@ class TaskTracker {
                     if (!a.dueDateTime) return -1;
                     return new Date(b.dueDateTime) - new Date(a.dueDateTime);
                 case 'priority':
-                    const priorityOrder = { 'urgent': 0, 'important': 1, 'medium': 2, 'low': 3 };
-                    return (priorityOrder[a.priority] || 4) - (priorityOrder[b.priority] || 4);
+                    // const priorityOrder = { 'urgent': 0, 'important': 1, 'medium': 2, 'low': 3 };
+                    // return (priorityOrder[a.priority] || 4) - (priorityOrder[b.priority] || 4);
+                    return (a.priority || 0) - (b.priority || 0);
                 default:
                     return 0;
             }
@@ -276,7 +282,7 @@ class TaskTracker {
         this.updateTaskCount();
     }
 
-    renderTasks () {
+    renderTasks() {
         const container = document.getElementById('tasksContainer');
         const emptyState = document.getElementById('emptyState');
 
@@ -295,12 +301,12 @@ class TaskTracker {
         }
     }
 
-    renderCardView (container) {
+    renderCardView(container) {
         container.className = 'tasks-container card-view';
         container.innerHTML = this.filteredTasks.map(task => this.createTaskCard(task)).join('');
     }
 
-    renderTableView (container) {
+    renderTableView(container) {
         container.className = 'tasks-container table-view';
         container.innerHTML = `
             <div class="tasks-table">
@@ -309,10 +315,10 @@ class TaskTracker {
                         <tr>
                             <th>Task</th>
                             <th>Priority</th>
-                            <th>Plan</th>
                             <th>Status</th>
                             <th>Due Date</th>
-                            <th>Assigned to</th>
+                            <th>Assigned to</th>           
+                            <th>Plan</th>                             
                         </tr>
                     </thead>
                     <tbody>
@@ -323,7 +329,7 @@ class TaskTracker {
         `;
     }
 
-    createTaskCard (task) {
+    createTaskCard(task) {
         const status = this.getTaskStatus(task.percentComplete);
         const isOverdue = this.isTaskOverdue(task);
         const cardClass = `task-card ${status === 'completed' ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`;
@@ -359,7 +365,7 @@ class TaskTracker {
         `;
     }
 
-    createTaskRow (task) {
+    createTaskRow(task) {
         const status = this.getTaskStatus(task.percentComplete);
 
         const assignedTo = Object.keys(task.assignments).map(key => {
@@ -370,16 +376,22 @@ class TaskTracker {
             return `<span data-id="${key}" data-status="${user.status}" class="task-status aduser">${user.userDetails.displayName}</span>`;
         }).join('');
 
+        const priorityName = task.priority ? priorityLookup[task.priority] || task.priority : 'Unknown';
+        const variance = status !== "completed" ? (Date.now() - new Date(task.dueDateTime)) / (1000 * 60 * 60 * 24) : 0; // in days
+        const dueString = variance > 0 ? ` <span class="overdue">(${Math.ceil(variance)}d)</span>` : variance < 0 ? ` (${Math.ceil(-variance)}d)` : '';
+        // const dueClass =task.dueDateTime?( variance > 0 ? 'overdue' : variance < 0 ? 'due' : ''):'';
+        
         return `
             <tr>
                 <td>
-                    <strong><a href="/planner/go/${task.id}" target="_blank">${this.escapeHtml(task.title)}</a></strong>
+                    <strong><a href="/planner/go/${task.id}" target="_blank" title="${this.escapeHtml(task.title)}">${this.escapeHtml(task.title)}</a></strong>
                 </td>
-                <td class="text-center">${task.priority}</td>
-                <td>${this.escapeHtml(task.planTitle)}</td>
+                <td>${priorityName}</td>
                 <td><span class="task-status status-${status}">${this.formatStatus(status)}</span></td>
-                <td>${task.dueDateTime ? this.formatDate(task.dueDateTime) : '-'}</td>
+                <td>${task.dueDateTime ? this.formatDate(task.dueDateTime)+ dueString : '-'}</td>
                 <td>${assignedTo}</td>
+                <td title="${this.escapeHtml(task.planTitle)}">${this.escapeHtml(task.planTitle)}</td>                
+                
             </tr>
         `;
 
@@ -397,7 +409,7 @@ class TaskTracker {
         // `;
     }
 
-    switchView (view) {
+    switchView(view) {
         this.currentView = view;
 
         // Update button states
@@ -407,7 +419,7 @@ class TaskTracker {
         this.renderTasks();
     }
 
-    clearFilters () {
+    clearFilters() {
         this.filters = {
             plan: '',
             status: '',
@@ -423,7 +435,7 @@ class TaskTracker {
         this.applyFilters();
     }
 
-    updateStats (statsData) {
+    updateStats(statsData) {
         console.log(statsData)
         const stats = statsData.stats
         const allStatusOption = document.querySelector('select#statusFilter option[value=""]');
@@ -443,12 +455,12 @@ class TaskTracker {
 
     }
 
-    updateTaskCount () {
+    updateTaskCount() {
         document.getElementById('taskCount').textContent =
             `${this.filteredTasks.length} of ${this.tasks.length} tasks`;
     }
 
-    updateSyncStatus (status, text) {
+    updateSyncStatus(status, text) {
         const icon = document.getElementById('syncIcon');
         const textEl = document.getElementById('syncText');
 
@@ -456,22 +468,22 @@ class TaskTracker {
         textEl.textContent = text;
     }
 
-    updateLastRefreshTime () {
+    updateLastRefreshTime() {
         document.getElementById('lastUpdate').textContent =
             `Last updated: ${new Date().toLocaleTimeString()}`;
     }
 
-    showLoading (show) {
+    showLoading(show) {
         document.getElementById('loadingState').style.display = show ? 'block' : 'none';
         document.getElementById('tasksContainer').style.display = show ? 'none' : 'block';
     }
 
-    showError (message) {
+    showError(message) {
         // Simple error display - you could enhance this with a proper notification system
         alert(message);
     }
 
-    startHeartbeat () {
+    startHeartbeat() {
         // Send heartbeat every 30 seconds to maintain session
         setInterval(async () => {
             try {
@@ -496,13 +508,13 @@ class TaskTracker {
     }
 
     // Utility methods
-    getTaskStatus (percentComplete) {
+    getTaskStatus(percentComplete) {
         if (percentComplete === 100) return 'completed';
         if (percentComplete > 0) return 'inProgress';
         return 'notStarted';
     }
 
-    getStatusValue (status) {
+    getStatusValue(status) {
         switch (status) {
             case 'completed': return 100;
             case 'inProgress': return 50; // This is approximate
@@ -511,12 +523,12 @@ class TaskTracker {
         }
     }
 
-    isTaskOverdue (task) {
+    isTaskOverdue(task) {
         if (!task.dueDateTime) return false;
         return new Date(task.dueDateTime) < new Date() && task.percentComplete < 100;
     }
 
-    formatStatus (status) {
+    formatStatus(status) {
         switch (status) {
             case 'notStarted': return 'Not Started';
             case 'inProgress': return 'In Progress';
@@ -525,11 +537,11 @@ class TaskTracker {
         }
     }
 
-    formatPriority (priority) {
+    formatPriority(priority) {
         return priority //? priority.charAt(0).toUpperCase() + priority.slice(1) : "NONE";
     }
 
-    formatDateTimeWithIntl (date) {
+    formatDateTimeWithIntl(date) {
         // Options for the desired date and time format
         const options = {
             day: '2-digit',
@@ -555,23 +567,23 @@ class TaskTracker {
         const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
         const year = new Intl.DateTimeFormat('en-US', { year: 'numeric' }).format(date);
 
-        let hours = date.getHours();
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const ampm = hours >= 12 ? 'pm' : 'am';
+        // let hours = date.getHours();
+        // const minutes = String(date.getMinutes()).padStart(2, '0');
+        // const ampm = hours >= 12 ? 'pm' : 'am';
 
-        hours = hours % 12;
-        hours = hours ? String(hours).padStart(2, '0') : '12'; // The hour '0' should be '12', padded.
+        // hours = hours % 12;
+        // hours = hours ? String(hours).padStart(2, '0') : '12'; // The hour '0' should be '12', padded.
 
-        return `${day}-${month}-${year}, ${hours}:${minutes}${ampm}`;
+        return `${day} ${month} ${year}`;
     }
 
-    formatDate (dateString) {
+    formatDate(dateString) {
         const date = new Date(dateString);
         //return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return this.formatDateTimeWithIntl(date);
     }
 
-    escapeHtml (text) {
+    escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;

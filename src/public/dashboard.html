@@ -38,10 +38,11 @@
                     <button id="refreshBtn" class="btn btn-secondary">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
-                    <div class="user-info">
+                    <a href="/auth/logout" class="btn btn-secondary"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+                    <!-- <div class="user-info">
                         <span id="userEmail"></span>
                         <a href="/auth/logout" class="btn btn-secondary">Logout</a>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </header>
@@ -87,13 +88,8 @@
         <!-- Filters & Controls -->
         <div id="controlsSection" class="controls-section hidden">
             <div class="container">
-                <div class="toolheader">
-                    <div class="tooltitle">
-                        Filter and sort
-                    </div>
-                    <div id="closeBtn" class="closebutton">
-                        <i class='fa fa-close'></i>
-                    </div>
+                <div id="closeBtn" class="closebutton hidden">
+                    <i class='fa fa-close'></i>
                 </div>
                 <div class="filters">
                     <div class="filter-group">
@@ -127,7 +123,7 @@
                         </select>
                     </div>
 
-                    <div class="filter-group">
+                    <div class="filter-group hidden">
                         <label for="sortBy">View:</label>
                         <div class="filter-buttons-container">
                             <button id="tableView" class="btn btn-outline active">
