@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planner Task Tracker</title>
+    <!-- <title>Planner Task Tracker</title> -->
+     <title>Tasks Assigned by ME</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -14,7 +15,8 @@
         <!-- Header -->
         <header class="header">
             <div class="container">
-                <h1><i class="fas fa-tasks"></i> Planner Task Tracker</h1>
+                <!-- <h1><i class="fas fa-tasks"></i> Planner Task Tracker</h1> -->
+                <h1><i class="fas fa-tasks"></i> Tasks Assigned by ME</h1>                
                 <div class="stat-item">
                     <div class="stat-number" id="totalTasks">0</div>
                     <div class="stat-label">Total Tasks</div>
@@ -32,7 +34,7 @@
                     <div class="stat-label">Not Started</div>
                 </div>
                 <div class="header-actions">
-                    <button id="filterSortBtn" class="btn btn-secondary">
+                    <button id="filterSortBtn" class="btn btn-secondary hidden">
                         <i class="fa-solid fa-filter"></i>Filter/Sort
                     </button>
                     <button id="refreshBtn" class="btn btn-secondary">
@@ -86,7 +88,7 @@
         </div>
 
         <!-- Filters & Controls -->
-        <div id="controlsSection" class="controls-section hidden">
+        <div id="controlsSection" class="controls-section">
             <div class="container">
                 <div id="closeBtn" class="closebutton hidden">
                     <i class='fa fa-close'></i>

@@ -239,6 +239,9 @@ class TaskTracker {
         // Apply status filter
         if (this.filters.status) {
             filtered = filtered.filter(task => task.percentComplete === this.getStatusValue(this.filters.status));
+        } else {
+            // If no status filter, include all tasks
+            filtered = filtered.filter(task => task.percentComplete !== 100);
         }
 
         // Apply search filter
@@ -378,7 +381,9 @@ class TaskTracker {
 
         const priorityName = task.priority ? priorityLookup[task.priority] || task.priority : 'Unknown';
         const variance = status !== "completed" ? (Date.now() - new Date(task.dueDateTime)) / (1000 * 60 * 60 * 24) : 0; // in days
-        const dueString = variance > 0 ? ` <span class="overdue">(${Math.ceil(variance)}d)</span>` : variance < 0 ? ` (${Math.ceil(-variance)}d)` : '';
+        const due = variance > 0 ? Math.ceil(variance) : Math.ceil(-variance);
+        const dueTitle = task.dueDateTime? (variance > 0 ? `Overdue by ${due} days` : variance < 0 ? `Due in ${due} days` : ''): 'Due date not specified';
+        const dueString = variance > 0 ? ` <span class="overdue">⮝${due}d</span>` : variance < 0 ? ` <span class="due">⮞${due}d</span>` : '';
         // const dueClass =task.dueDateTime?( variance > 0 ? 'overdue' : variance < 0 ? 'due' : ''):'';
         
         return `
@@ -388,7 +393,7 @@ class TaskTracker {
                 </td>
                 <td>${priorityName}</td>
                 <td><span class="task-status status-${status}">${this.formatStatus(status)}</span></td>
-                <td>${task.dueDateTime ? this.formatDate(task.dueDateTime)+ dueString : '-'}</td>
+                <td title="${dueTitle}">${task.dueDateTime ? this.formatDate(task.dueDateTime)+ dueString : '-'}</td>
                 <td>${assignedTo}</td>
                 <td title="${this.escapeHtml(task.planTitle)}">${this.escapeHtml(task.planTitle)}</td>                
                 
