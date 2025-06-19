@@ -118,6 +118,7 @@ body {
 .btn-primary {
     background-color: var(--primary-btn-background-color);
     color: var(--primary-btn-color);
+    height: 37px; 
 }
 
 .btn-primary:hover {
@@ -316,6 +317,7 @@ body {
 
 .tasks-table table td:nth-child(4) {
     text-align: left;
+    white-space: nowrap;
 }
 
 .tasks-table table td:nth-child(5) {
