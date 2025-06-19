@@ -56,23 +56,11 @@ async function getUserPlans(accessToken) {
     try {
         const client = getGraphClient(accessToken);
         
-        // Get user's groups first (plans are associated with groups)
-        //const groups = await client.api('/me/memberOf').get();
         const plans = [];
         
-        // For each group, try to get associated plans
-        // for (const group of groups.value) {
-        //     if (group['@odata.type'] === '#microsoft.graph.group') {
-        //         try {
-        //             const groupPlans = await client.api(`/groups/${group.id}/planner/plans`).get();
-        //             plans.push(...groupPlans.value);
-        //         } catch (error) {
-        //             // Some groups might not have planner plans, continue
-        //             console.log(`No planner plans found for group ${group.id}`);
-        //         }
-        //     }
-        // }
-
+        // Fetch all plans shared with the current user.
+        // See:
+        //   https://learn.microsoft.com/en-us/graph/api/planneruser-list-plans
         const plannerPlans = await client.api('/me/planner/plans?$select=id,title').get();
         plans.push(...plannerPlans.value);
         
@@ -140,17 +128,18 @@ async function getUserCreatedTasks(accessToken) {
 
 /**
  * Get task details including buckets and categories
+ * Not using this in current version.
  */
-async function getTaskDetails(accessToken, taskId) {
-    try {
-        const client = getGraphClient(accessToken);
-        const taskDetails = await client.api(`/planner/tasks/${taskId}/details`).get();
-        return taskDetails;
-    } catch (error) {
-        console.error(`Error fetching task details for ${taskId}:`, error);
-        throw error;
-    }
-}
+// async function getTaskDetails(accessToken, taskId) {
+//     try {
+//         const client = getGraphClient(accessToken);
+//         const taskDetails = await client.api(`/planner/tasks/${taskId}/details`).get();
+//         return taskDetails;
+//     } catch (error) {
+//         console.error(`Error fetching task details for ${taskId}:`, error);
+//         throw error;
+//     }
+// }
 
 /**
  * Get comprehensive task data for user
@@ -159,26 +148,28 @@ async function getComprehensiveUserTasks(accessToken) {
     try {
         const tasks = await getUserCreatedTasks(accessToken);
         
+        return tasks;
         // Enhance tasks with additional details
-        const enhancedTasks = await Promise.all(
-            tasks.map(async (task) => {
-                try {
-                    const details = await getTaskDetails(accessToken, task.id);
-                    return {
-                        ...task,
-                        description: details.description,
-                        checklist: details.checklist,
-                        references: details.references
-                    };
-                } catch (error) {
-                    // If details fail, return task without enhanced info
-                    console.log(`Could not fetch details for task ${task.id}`);
-                    return task;
-                }
-            })
-        );
+        // Not doing this in the current version.
+        // const enhancedTasks = await Promise.all(
+        //     tasks.map(async (task) => {
+        //         try {
+        //             const details = await getTaskDetails(accessToken, task.id);
+        //             return {
+        //                 ...task,
+        //                 description: details.description,
+        //                 checklist: details.checklist,
+        //                 references: details.references
+        //             };
+        //         } catch (error) {
+        //             // If details fail, return task without enhanced info
+        //             console.log(`Could not fetch details for task ${task.id}`);
+        //             return task;
+        //         }
+        //     })
+        // );
         
-        return enhancedTasks;
+        // return enhancedTasks;
     } catch (error) {
         console.error('Error fetching comprehensive user tasks:', error);
         throw error;
@@ -191,6 +182,6 @@ module.exports = {
     getUserPlans,
     getPlanTasks,
     getUserCreatedTasks,
-    getTaskDetails,
+    // getTaskDetails,
     getComprehensiveUserTasks
 };

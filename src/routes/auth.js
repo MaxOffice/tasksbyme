@@ -37,7 +37,7 @@ router.get('/callback', async (req, res) => {
         registerUserForUpdates(response.account.localAccountId, response.account);
         
         console.log('User authenticated:', response.account.username);
-        res.redirect('/dashboard');
+        res.redirect('/');
     } catch (error) {
         console.error('Callback error:', error);
         res.status(500).send('Authentication failed');

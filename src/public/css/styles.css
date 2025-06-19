@@ -1,5 +1,48 @@
-/* Reset and Base Styles */
+/* Variables */
+:root {
+    --body-background-color: #f5f5f5;
+    --body-color: #333;
+    --text-muted-color: #666;
+    --header-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --header-color: white;
+    --stat-number-color: bisque;
+    --primary-btn-background-color: #4caf50;
+    --primary-btn-hover-background-color: #45a049;
+    --primary-btn-color: white;
+    --secondary-btn-background-color: rgba(255, 255, 255, 0.2);
+    --secondary-btn-border-color: rgba(255, 255, 255, 0.3);
+    --secondary-btn-color: white;
+    --filter-section-background-color: lightblue;
+    --filter-section-border-bottom-color: #e0e0e0;
+    --filter-group-label-color: #555;
+    --filter-group-control-border-color: #e0e0e0;
+    --filter-group-control-focus-border-color: #667eea;
+    --task-table-background-color: white;
+    --task-table-separator-line-color: #e0e0e0;
+    --task-table-header-background-color: #f8f9fa;
+    --task-table-header-color: #555;
+    --task-table-row-hover-background-color: #f8f9fa;
+    --task-duedate-overdue-color: red;
+    --task-duedate-due-color: lightseagreen;
+    --status-notstarted-background-color: #e3f2fd;
+    --status-notstarted-color: #1976d2;
+    --status-inprogress-background-color: #fff3e0;
+    --status-inprogress-color: #f57c00;
+    --status-completed-background-color: #e8f5e8;
+    --status-completed-color: #2e7d32;
+    --user-background-color: #baa8fb;
+    --status-bar-border-color: #e0e0e0;
+    --status-bar-background-color: white;
+    --status-info-color: #666;
+    --status-sync-ready-color: #4caf50;
+    --status-sync-updating-color: #ff9800;
+    --status-sync-error-color: #f44336;
+    --loading-state-default-color: #666;
+    --loading-state-icon-color: #667eea;
+    --loading-state-empty-icon-color: #ccc;
+}
 
+/* Reset and Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -8,31 +51,26 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: var(--body-background-color);
+    color: var(--body-color);
     line-height: 1.6;
 }
 
 .container {
-    /* max-width: 1200px; */
     max-width: calc(100vw - 2rem);
     margin: 0 auto;
-    /* padding: 0 20px; */
     padding: 0;
 }
 
 /* Header */
 .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--header-background);
+    color: var(--header-color);
     padding: 1rem 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: fixed;
     height: 5rem;
     width: 100%;
-
-
-
 }
 
 .header .container {
@@ -51,7 +89,6 @@ body {
     align-items: center;
     gap: 1rem;
     margin-right: .6rem;
-
 }
 
 .user-info {
@@ -79,45 +116,28 @@ body {
 }
 
 .btn-primary {
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--primary-btn-background-color);
+    color: var(--primary-btn-color);
 }
 
 .btn-primary:hover {
-    background-color: #45a049;
-    transform: translateY(-1px);
+    background-color: var(--primary-btn-hover-background-color);
 }
 
 .btn-secondary {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: var(--secondary-btn-background-color);
+    color: var(--secondary-btn-color);
+    border: 1px solid var(--secondary-btn-border-color);
 }
 
 .btn-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-}
-
-.btn-outline {
-    background-color: transparent;
-    color: #667eea;
-    border: 2px solid #667eea;
-}
-
-.btn-outline:hover {
-    background-color: #667eea;
-    color: white;
-}
-
-.btn-outline.active {
-    background-color: #667eea;
-    color: white;
+    background-color: var(--secondary-btn-border-color);
 }
 
 /* Status Bar */
 .status-bar {
-    background-color: white;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--status-bar-background-color);
+    border-bottom: 1px solid var(--status-bar-border-color);
     padding: 0.75rem 0;
 
     position: fixed;
@@ -131,7 +151,7 @@ body {
     justify-content: space-between;
     align-items: center;
     font-size: 0.9rem;
-    color: #666;
+    color: var(--status-info-color);
 }
 
 .sync-status {
@@ -145,50 +165,26 @@ body {
 }
 
 .sync-ready {
-    color: #4CAF50;
+    color: var(--status-sync-ready-color);
 }
 
 .sync-updating {
-    color: #ff9800;
+    color: var(--status-sync-updating-color);
 }
 
 .sync-error {
-    color: #f44336;
+    color: var(--status-sync-error-color);
 }
 
 /* Controls Section */
 .controls-section {
-    background-color: lightblue;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--filter-section-background-color);
+    border-bottom: 1px solid --var(--filter-section-border-bottom-color);
     padding-top: 0px;
     padding-bottom: .5rem;
     top: 5rem;
     position: fixed;
     width: 100%
-    /* Making it a tool panel 
-    position: fixed;
-    padding: 1.5rem 0.5rem;
-    z-index: 100;
-    opacity: 0.95;
-    width: 20rem;
-    height: 100%; */
-}
-
-.toolheader {
-    display: flex;
-    margin: -1.5rem 0 0 0;
-    padding: 0.1rem 0.1rem;
-    align-content: last baseline;
-}
-
-.tooltitle {
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.closebutton {
-    margin-left: auto;
-    cursor: pointer;
 }
 
 .filters {
@@ -207,13 +203,13 @@ body {
 .filter-group label {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #555;
+    color: var(--filter-group-label-color);
 }
 
 .filter-group select,
 .filter-group input {
     padding: 0.5rem;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--filter-group-control-border-color);
     border-radius: 4px;
     font-size: 0.9rem;
     min-width: 150px;
@@ -227,7 +223,8 @@ body {
 .filter-group select:focus,
 .filter-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--filter-group-control-focus-border-color);
+
 }
 
 .filter-buttons-container {
@@ -238,34 +235,15 @@ body {
 }
 
 /* Statistics */
-.stats-section {
-    display: none;
-    background-color: white;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid #e0e0e0;
+.stat-item div {
+    display: inline-block;
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.stat-card {
-    /*
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    */
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.stat-number {
-    /* font-size: 2rem; */
+.stat-item div.stat-number {
+    font-size: 1.5rem;
     font-weight: bold;
-    /* margin-bottom: 0.5rem; */
+    color: var(--stat-number-color);
+    animation: appearAndShrink 0.5s ease forwards;
 }
 
 .stat-label {
@@ -273,19 +251,9 @@ body {
     opacity: 0.9;
 }
 
-.stat-item div {
-    display: inline-block;
-}
-
 /* Main Content */
 .main-content {
     padding: 10rem 0 4rem 0;
-}
-
-.view-toggle {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
 }
 
 /* Loading and Empty States */
@@ -293,19 +261,19 @@ body {
 .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #666;
+    color: var(--loading-state-default-color);
 }
 
 .loading-state i {
     font-size: 2rem;
     margin-bottom: 1rem;
-    color: #667eea;
+    color: var(--loading-state-icon-color);
 }
 
 .empty-state i {
     font-size: 3rem;
     margin-bottom: 1rem;
-    color: #ccc;
+    color: var(--loading-state-empty-icon-color);
 }
 
 /* Tasks Container */
@@ -314,46 +282,62 @@ body {
     gap: 1rem;
 }
 
-/* Card View */
-.tasks-container.card-view {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+/* Table View */
+.tasks-container.table-view {
+    grid-template-columns: 1fr;
 }
 
-.task-card {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
+.tasks-table {
+    background: var(--task-table-background-color);
+    /* border-radius: 10px; */
+    overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #667eea;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* margin: 0 0.5rem; */
 }
 
-.task-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+.tasks-table table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.task-card.completed {
-    border-left-color: #4CAF50;
-    opacity: 0.8;
+.tasks-table table td:nth-child(1) {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.task-card.overdue {
-    border-left-color: #f44336;
+.tasks-table table td:nth-child(3) {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    margin-bottom: 1rem;
+.tasks-table table td:nth-child(4) {
+    text-align: left;
 }
 
-.task-title {
-    font-size: 1.1rem;
+.tasks-table table td:nth-child(5) {
+    width: 150px;
+    white-space: nowrap;
+}
+
+.tasks-table th,
+.tasks-table td {
+    padding: .1rem .5rem .25rem .5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--task-table-separator-line-color);
+}
+
+.tasks-table th {
+    background-color: var(--task-table-header-background-color);
     font-weight: 600;
-    color: #333;
-    margin-bottom: 0.5rem;
+    color: var(--task-table-header-color);
+}
+
+.tasks-table tr:hover {
+    background-color: var(--task-table-row-hover-background-color);
 }
 
 .task-status {
@@ -366,127 +350,46 @@ body {
 }
 
 .status-notStarted {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background-color: var(--status-notstarted-background-color);
+    color: var(--status-notstarted-color);
 }
 
 .status-inProgress {
-    background-color: #fff3e0;
-    color: #f57c00;
+    background-color: var(--status-notstarted-background-color);
+    color: var(--status-inprogress-color);
 }
 
 .status-completed {
-    background-color: #e8f5e8;
-    color: #2e7d32;
-}
-
-.task-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: #666;
-}
-
-.task-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.task-plan {
-    background-color: #f5f5f5;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    color: #555;
-    margin-top: 0.5rem;
-}
-
-/* Table View */
-.tasks-container.table-view {
-    grid-template-columns: 1fr;
-}
-
-.tasks-table {
-    background: white;
-    /* border-radius: 10px; */
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin: 0 0.5rem;
-}
-
-.tasks-table table {
-    width: 100%;
-    border-collapse: collapse;
-
-
-}
-.tasks-table table td:nth-child(4) {
-    /* font-family: monospace; */
-    text-align: left;
-}
-
-.tasks-table table td:nth-child(5) {
-    width: 150px;
-    white-space: nowrap;
-}
-
-.tasks-table table td:nth-child(1) {
-    max-width: 250px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-}
-
-.tasks-table table td:nth-child(3) {
-    max-width: 150px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-}
-
-
-.tasks-table th,
-.tasks-table td {
-    padding: .1rem .5rem .25rem .5rem;
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.tasks-table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    color: #555;
-}
-
-.tasks-table tr:hover {
-    background-color: #f8f9fa;
+    background-color: var(--status-completed-background-color);
+    color: var(--status-completed-color);
 }
 
 .aduser {
     margin: 0.1rem 0.1rem;
-    background-color: #BAA8FB
+    background-color: var(--user-background-color);
 }
 
 .overdue {
-    color: red;
+    color: var(--task-duedate-overdue-color);
 }
 
-.due{
-    color: lightseagreen; 
-}
-.stat-item div.stat-number {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: bisque;
-    animation: appearAndShrink 0.5s ease forwards;
+.due {
+    color: var(--task-duedate-due-color);
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+    .stat-item {
+        display: none;
+    }
+}
+
 @media (max-width: 768px) {
+    .header {
+        position: initial;
+        height: initial;
+    }
+
     .header .container {
         flex-direction: column;
         gap: 1rem;
@@ -497,6 +400,10 @@ body {
         justify-content: space-between;
     }
 
+    .controls-section {
+        position: initial;
+    }
+
     .filters {
         flex-direction: column;
         align-items: stretch;
@@ -505,24 +412,21 @@ body {
     .filter-group select,
     .filter-group input {
         min-width: auto;
+        width: initial;
     }
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .tasks-container.card-view {
-        grid-template-columns: 1fr;
-    }
-
-    .view-toggle {
-        justify-content: center;
-    }
-
     .controls-section {
         position: initial;
         width: initial;
         height: initial;
+    }
+
+    .main-content {
+        padding-top: 1rem;
     }
 
     .tasks-table {
@@ -599,7 +503,7 @@ body {
 }
 
 .text-muted {
-    color: #666;
+    color: var(--text-muted-color);
 }
 
 .mb-1 {

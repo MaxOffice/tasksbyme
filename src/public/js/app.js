@@ -1,19 +1,14 @@
 // Define the cache expiration time in milliseconds (1 hour)
 const CACHE_EXPIRATION_TIME = 60 * 60 * 1000; // 1 hour in milliseconds
-const priorityLookup = {
-    1: 'Urgent',
-    9: 'Low',
-    3: 'Important',
-    5: 'Medium'
-}
+
 class TaskTracker {
     constructor() {
         this.tasks = [];
         this.filteredTasks = [];
-        this.currentView = 'table';
+
         this.filters = {
             plan: '',
-            status: '',
+            status: 'notcomplete',
             search: '',
             sortBy: 'dueDate'
         };
@@ -23,7 +18,7 @@ class TaskTracker {
         this.init();
     }
 
-    async init() {
+    async init () {
         this.bindEvents();
         this.showLoading(true);
         await this.loadTasks();
@@ -32,7 +27,7 @@ class TaskTracker {
         this.startHeartbeat();
     }
 
-    async checkAuthStatus() {
+    async checkAuthStatus () {
         try {
             const response = await this.makeAuthenticatedRequest('/api/auth/status');
             return response.ok;
@@ -41,17 +36,17 @@ class TaskTracker {
         }
     }
 
-    async makeAuthenticatedRequest(url, options = {}) {
+    async makeAuthenticatedRequest (url, options = {}) {
         try {
             const response = await fetch(url, options);
 
             if (response.status === 401 || response.status === 403) {
-                // Authentication failed - redirect to login
-                // window.location.href = '/auth/login';
+                // Authentication failed
                 return null;
             }
 
             if (!response.ok) {
+                // Server error
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -62,8 +57,7 @@ class TaskTracker {
         }
     }
 
-    async fetchUserDetails(userId) {
-        console.log(`[CACHE MISS/EXPIRED] Fetching fresh details for user: ${userId}`);
+    async fetchUserDetails (userId) {
         const response = await this.makeAuthenticatedRequest(`/api/users/${userId}`);
         if (!response.ok) {
             console.log(`[ERROR]: Could not fetch details for user id ${userId}`);
@@ -75,16 +69,13 @@ class TaskTracker {
             userDetails: freshUserDetails,
             timestamp: Date.now(),
         });
-        console.log(`[CACHE UPDATE] Cached fresh details for user: ${userId}`);
-
     }
 
-    getUserDetails(userId) {
+    getUserDetails (userId) {
         const cachedEntry = this.userCache.get(userId);
         const currentTime = Date.now();
 
         if (cachedEntry && (currentTime - cachedEntry.timestamp < CACHE_EXPIRATION_TIME)) {
-            console.log(`[CACHE HIT] Returning cached details for user: ${userId}`);
             return {
                 id: userId,
                 userDetails: cachedEntry.userDetails,
@@ -100,19 +91,10 @@ class TaskTracker {
         }
     }
 
-    bindEvents() {
+    bindEvents () {
         // Refresh button
         document.getElementById('refreshBtn').addEventListener('click', () => {
             this.refreshTasks();
-        });
-
-        // View toggle
-        document.getElementById('cardView').addEventListener('click', () => {
-            this.switchView('card');
-        });
-
-        document.getElementById('tableView').addEventListener('click', () => {
-            this.switchView('table');
         });
 
         // Filters
@@ -139,17 +121,9 @@ class TaskTracker {
         document.getElementById('clearFilters').addEventListener('click', () => {
             this.clearFilters();
         });
-
-        document.getElementById('filterSortBtn').addEventListener('click', () => {
-            document.getElementById('controlsSection').classList.toggle('hidden');
-        });
-
-        document.getElementById('closeBtn').addEventListener('click', () => {
-            document.getElementById('controlsSection').classList.add('hidden');
-        })
     }
 
-    async loadTasks() {
+    async loadTasks () {
         try {
             this.updateSyncStatus('updating', 'Loading tasks...');
 
@@ -174,7 +148,7 @@ class TaskTracker {
         }
     }
 
-    async loadStats() {
+    async loadStats () {
         try {
             const response = await this.makeAuthenticatedRequest('/api/stats');
             if (!response.ok) return;
@@ -186,7 +160,7 @@ class TaskTracker {
         }
     }
 
-    async refreshTasks() {
+    async refreshTasks () {
         const refreshBtn = document.getElementById('refreshBtn');
         const originalText = refreshBtn.innerHTML;
 
@@ -213,7 +187,7 @@ class TaskTracker {
         }
     }
 
-    populateFilters() {
+    populateFilters () {
         const planFilter = document.getElementById('planFilter');
         const plans = [...new Set(this.tasks.map(task => task.planTitle))].sort();
 
@@ -228,7 +202,7 @@ class TaskTracker {
         });
     }
 
-    applyFilters() {
+    applyFilters () {
         let filtered = [...this.tasks];
 
         // Apply plan filter
@@ -238,10 +212,11 @@ class TaskTracker {
 
         // Apply status filter
         if (this.filters.status) {
-            filtered = filtered.filter(task => task.percentComplete === this.getStatusValue(this.filters.status));
-        } else {
-            // If no status filter, include all tasks
-            filtered = filtered.filter(task => task.percentComplete !== 100);
+            filtered = filtered.filter(
+                this.filters.status === "notcomplete"
+                    ? task => task.percentComplete !== 100
+                    : task => task.percentComplete === this.getStatusValue(this.filters.status)
+            );
         }
 
         // Apply search filter
@@ -272,8 +247,6 @@ class TaskTracker {
                     if (!a.dueDateTime) return -1;
                     return new Date(b.dueDateTime) - new Date(a.dueDateTime);
                 case 'priority':
-                    // const priorityOrder = { 'urgent': 0, 'important': 1, 'medium': 2, 'low': 3 };
-                    // return (priorityOrder[a.priority] || 4) - (priorityOrder[b.priority] || 4);
                     return (a.priority || 0) - (b.priority || 0);
                 default:
                     return 0;
@@ -285,7 +258,7 @@ class TaskTracker {
         this.updateTaskCount();
     }
 
-    renderTasks() {
+    renderTasks () {
         const container = document.getElementById('tasksContainer');
         const emptyState = document.getElementById('emptyState');
 
@@ -297,19 +270,10 @@ class TaskTracker {
 
         emptyState.style.display = 'none';
 
-        if (this.currentView === 'card') {
-            this.renderCardView(container);
-        } else {
-            this.renderTableView(container);
-        }
+        this.renderTableView(container);
     }
 
-    renderCardView(container) {
-        container.className = 'tasks-container card-view';
-        container.innerHTML = this.filteredTasks.map(task => this.createTaskCard(task)).join('');
-    }
-
-    renderTableView(container) {
+    renderTableView (container) {
         container.className = 'tasks-container table-view';
         container.innerHTML = `
             <div class="tasks-table">
@@ -332,221 +296,48 @@ class TaskTracker {
         `;
     }
 
-    createTaskCard(task) {
-        const status = this.getTaskStatus(task.percentComplete);
-        const isOverdue = this.isTaskOverdue(task);
-        const cardClass = `task-card ${status === 'completed' ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`;
+    createTaskRow (task) {
+        const dueDateView = this.formatDueDate(task);
 
-        return `
-            <div class="${cardClass}">
-                <div class="task-header">
-                    <div>
-                        <div class="task-title">${this.escapeHtml(task.title)}</div>
-                        <span class="task-status status-${status}">${this.formatStatus(status)}</span>
-                    </div>
-                </div>
-                <div class="task-meta">
-                    ${task.dueDateTime ? `
-                        <div class="task-meta-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Due: ${this.formatDate(task.dueDateTime)}</span>
-                        </div>
-                    ` : ''}
-                    <div class="task-meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>Created: ${this.formatDate(task.createdDateTime)}</span>
-                    </div>
-                    ${task.priority ? `
-                        <div class="task-meta-item">
-                            <i class="fas fa-flag"></i>
-                            <span>Priority: ${this.formatPriority(task.priority)}</span>
-                        </div>
-                    ` : ''}
-                </div>
-                <div class="task-plan">${this.escapeHtml(task.planTitle)}</div>
-            </div>
-        `;
-    }
-
-    createTaskRow(task) {
-        const status = this.getTaskStatus(task.percentComplete);
-
-        const assignedTo = Object.keys(task.assignments).map(key => {
-            const user = this.getUserDetails(key);
-            if (user.userDetails.displayName === 'Unknown') {
-                user.userDetails.displayName = "Loading...";
-            }
-            return `<span data-id="${key}" data-status="${user.status}" class="task-status aduser">${user.userDetails.displayName}</span>`;
-        }).join('');
-
-        const priorityName = task.priority ? priorityLookup[task.priority] || task.priority : 'Unknown';
-        const variance = status !== "completed" ? (Date.now() - new Date(task.dueDateTime)) / (1000 * 60 * 60 * 24) : 0; // in days
-        const due = variance > 0 ? Math.ceil(variance) : Math.ceil(-variance);
-        const dueTitle = task.dueDateTime? (variance > 0 ? `Overdue by ${due} days` : variance < 0 ? `Due in ${due} days` : ''): 'Due date not specified';
-        const dueString = variance > 0 ? ` <span class="overdue">⮝${due}d</span>` : variance < 0 ? ` <span class="due">⮞${due}d</span>` : '';
-        // const dueClass =task.dueDateTime?( variance > 0 ? 'overdue' : variance < 0 ? 'due' : ''):'';
-        
         return `
             <tr>
-                <td>
-                    <strong><a href="/planner/go/${task.id}" target="_blank" title="${this.escapeHtml(task.title)}">${this.escapeHtml(task.title)}</a></strong>
+                <td>${this.formatTitle(task)}</td>
+                <td>${this.formatPriority(task.priority)}</td>
+                <td>${this.formatStatus(task)}</td>
+                <td title="${dueDateView.title}">
+                    ${dueDateView.content}
                 </td>
-                <td>${priorityName}</td>
-                <td><span class="task-status status-${status}">${this.formatStatus(status)}</span></td>
-                <td title="${dueTitle}">${task.dueDateTime ? this.formatDate(task.dueDateTime)+ dueString : '-'}</td>
-                <td>${assignedTo}</td>
-                <td title="${this.escapeHtml(task.planTitle)}">${this.escapeHtml(task.planTitle)}</td>                
-                
+                <td>${this.formatAssignedTo(task)}</td>
+                <td title="${this.escapeHtml(task.planTitle)}">
+                    ${this.escapeHtml(task.planTitle)}
+                </td>        
             </tr>
         `;
-
-        // return `
-        //     <tr>
-        //         <td>
-        //             <strong>${this.escapeHtml(task.title)}</strong>
-        //             ${task.priority ? `<br><small><i class="fas fa-flag"></i> ${this.formatPriority(task.priority)}</small>` : ''}
-        //         </td>
-        //         <td>${this.escapeHtml(task.planTitle)}</td>
-        //         <td><span class="task-status status-${status}">${this.formatStatus(status)}</span></td>
-        //         <td>${task.dueDateTime ? this.formatDate(task.dueDateTime) : '-'}</td>
-        //         <td>${this.formatDate(task.createdDateTime)}</td>
-        //     </tr>
-        // `;
     }
 
-    switchView(view) {
-        this.currentView = view;
-
-        // Update button states
-        document.getElementById('cardView').classList.toggle('active', view === 'card');
-        document.getElementById('tableView').classList.toggle('active', view === 'table');
-
-        this.renderTasks();
+    formatTitle (task) {
+        return `<a href="/planner/go/${task.id}" target="_blank" title="${this.escapeHtml(task.title)}">${this.escapeHtml(task.title)}</a>`
     }
 
-    clearFilters() {
-        this.filters = {
-            plan: '',
-            status: '',
-            search: '',
-            sortBy: 'dueDate'
-        };
+    formatStatus (task) {
+        const status = this.getTaskStatus(task.percentComplete);
+        const formattedStatus = status === 'notStarted' ? 'Not Started'
+            : status === 'inProgress' ? 'In Progress'
+                : status === 'completed' ? 'Completed' : 'Unknown';
 
-        document.getElementById('planFilter').value = '';
-        document.getElementById('statusFilter').value = '';
-        document.getElementById('searchInput').value = '';
-        document.getElementById('sortBy').value = 'dueDate';
 
-        this.applyFilters();
+        return `<span class="task-status status-${status}">${formattedStatus}</span>`
     }
 
-    updateStats(statsData) {
-        console.log(statsData)
-        const stats = statsData.stats
-        const allStatusOption = document.querySelector('select#statusFilter option[value=""]');
-        const notStartedOption = document.querySelector('select#statusFilter option[value="notStarted"]');
-        const inProgressOption = document.querySelector('select#statusFilter option[value="inProgress"]');
-        const completedOption = document.querySelector('select#statusFilter option[value="completed"]');
-
-        document.getElementById('totalTasks').textContent = stats.totalTasks || 0;
-        document.getElementById('completedTasks').textContent = stats.completed || 0;
-        document.getElementById('inProgressTasks').textContent = stats.inProgress || 0;
-        document.getElementById('notStartedTasks').textContent = stats.notStarted || 0;
-
-        allStatusOption.textContent = `All Status (${stats.totalTasks || 0})`;
-        notStartedOption.textContent = `Not Started (${stats.notStarted || 0})`;
-        inProgressOption.textContent = `In Progress (${stats.inProgress || 0})`;
-        completedOption.textContent = `Completed (${stats.completed || 0})`;
-
+    formatPriority (priority) {
+        return priority === 1 ? 'Urgent'
+            : priority === 9 ? 'Low'
+                : priority === 3 ? 'Important'
+                    : priority === 5 ? 'Medium'
+                        : priority.toString()
     }
 
-    updateTaskCount() {
-        document.getElementById('taskCount').textContent =
-            `${this.filteredTasks.length} of ${this.tasks.length} tasks`;
-    }
-
-    updateSyncStatus(status, text) {
-        const icon = document.getElementById('syncIcon');
-        const textEl = document.getElementById('syncText');
-
-        icon.className = `fas fa-circle sync-${status}`;
-        textEl.textContent = text;
-    }
-
-    updateLastRefreshTime() {
-        document.getElementById('lastUpdate').textContent =
-            `Last updated: ${new Date().toLocaleTimeString()}`;
-    }
-
-    showLoading(show) {
-        document.getElementById('loadingState').style.display = show ? 'block' : 'none';
-        document.getElementById('tasksContainer').style.display = show ? 'none' : 'block';
-    }
-
-    showError(message) {
-        // Simple error display - you could enhance this with a proper notification system
-        alert(message);
-    }
-
-    startHeartbeat() {
-        // Send heartbeat every 30 seconds to maintain session
-        setInterval(async () => {
-            try {
-                await this.makeAuthenticatedRequest('/scheduler/heartbeat', { method: 'POST' });
-            } catch (error) {
-                console.warn('Heartbeat failed:', error);
-            }
-        }, 30000);
-
-        // Load pending user details every 10 seconds
-        setInterval(async () => {
-            const pendingUsers = document.querySelectorAll('span.aduser[data-status="requested"]');
-            pendingUsers.forEach(e => {
-                const userId = e.getAttribute('data-id');
-                const details = this.getUserDetails(userId);
-                if (details.status === 'cached') {
-                    e.setAttribute('data-status', 'cached');
-                    e.textContent = details.userDetails.displayName;
-                }
-            });
-        }, 10000);
-    }
-
-    // Utility methods
-    getTaskStatus(percentComplete) {
-        if (percentComplete === 100) return 'completed';
-        if (percentComplete > 0) return 'inProgress';
-        return 'notStarted';
-    }
-
-    getStatusValue(status) {
-        switch (status) {
-            case 'completed': return 100;
-            case 'inProgress': return 50; // This is approximate
-            case 'notStarted': return 0;
-            default: return null;
-        }
-    }
-
-    isTaskOverdue(task) {
-        if (!task.dueDateTime) return false;
-        return new Date(task.dueDateTime) < new Date() && task.percentComplete < 100;
-    }
-
-    formatStatus(status) {
-        switch (status) {
-            case 'notStarted': return 'Not Started';
-            case 'inProgress': return 'In Progress';
-            case 'completed': return 'Completed';
-            default: return status;
-        }
-    }
-
-    formatPriority(priority) {
-        return priority //? priority.charAt(0).toUpperCase() + priority.slice(1) : "NONE";
-    }
-
-    formatDateTimeWithIntl(date) {
+    formatDateTimeWithIntl (date) {
         // Options for the desired date and time format
         const options = {
             day: '2-digit',
@@ -582,13 +373,166 @@ class TaskTracker {
         return `${day} ${month} ${year}`;
     }
 
-    formatDate(dateString) {
+    formatDate (dateString) {
         const date = new Date(dateString);
         //return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return this.formatDateTimeWithIntl(date);
     }
 
-    escapeHtml(text) {
+    formatDueDate (task) {
+        if ((!task.dueDateTime) || task.percentComplete === 100) {
+            return {
+                title: '',
+                content: '-'
+            };
+        }
+
+        const variance = (Date.now() - new Date(task.dueDateTime)) / (1000 * 60 * 60 * 24); // in days
+        const due = variance > 0 ? Math.ceil(variance) : Math.ceil(-variance);
+        const title = variance > 0
+            ? `Overdue by ${due} days`
+            : variance < 0
+                ? `Due in ${due} days` : '';
+        const dueString = variance > 0
+            ? ` <span class="overdue">⮝${due}d</span>`
+            : variance < 0
+                ? ` <span class="due">⮞${due}d</span>`
+                : '';
+        const content = this.formatDate(task.dueDateTime) + dueString;
+
+        return {
+            title,
+            content
+        }
+    }
+
+    formatAssignedTo (task) {
+        return Object.keys(task.assignments).map(key => {
+            const user = this.getUserDetails(key);
+            if (user.userDetails.displayName === 'Unknown') {
+                user.userDetails.displayName = "Loading...";
+            }
+            return `<span data-id="${key}" data-status="${user.status}" class="task-status aduser">${user.userDetails.displayName}</span>`;
+        }).join('');
+    }
+
+    clearFilters () {
+        this.filters = {
+            plan: '',
+            status: 'notcomplete',
+            search: '',
+            sortBy: 'dueDate'
+        };
+
+        document.getElementById('planFilter').value = '';
+        document.getElementById('statusFilter').value = 'notcomplete';
+        document.getElementById('searchInput').value = '';
+        document.getElementById('sortBy').value = 'dueDate';
+
+        this.applyFilters();
+    }
+
+    updateStats (statsData) {
+        console.log(statsData)
+        const stats = statsData.stats
+        const totalTasks = stats.totalTasks || 0;
+        const completed = stats.completed || 0;
+        const inprogress = stats.inProgress || 0;
+        const notstarted = stats.notStarted || 0;
+        const notcomplete = notstarted + inprogress;
+
+        const allStatusOption = document.querySelector('select#statusFilter option[value=""]');
+        const notCompleteOption = document.querySelector('select#statusFilter option[value="notcomplete"]')
+        const notStartedOption = document.querySelector('select#statusFilter option[value="notStarted"]');
+        const inProgressOption = document.querySelector('select#statusFilter option[value="inProgress"]');
+        const completedOption = document.querySelector('select#statusFilter option[value="completed"]');
+
+        document.getElementById('totalTasks').textContent = totalTasks;
+        document.getElementById('completedTasks').textContent = completed;
+        document.getElementById('inProgressTasks').textContent = inprogress;
+        document.getElementById('notStartedTasks').textContent = notstarted;
+
+        allStatusOption.textContent = `All (${totalTasks})`;
+        notCompleteOption.textContent = `All not completed (${notcomplete})`;
+        notStartedOption.textContent = `Not Started (${notstarted})`;
+        inProgressOption.textContent = `In Progress (${inprogress})`;
+        completedOption.textContent = `Completed (${completed})`;
+    }
+
+    updateTaskCount () {
+        document.getElementById('taskCount').textContent =
+            `${this.filteredTasks.length} of ${this.tasks.length} tasks`;
+    }
+
+    updateSyncStatus (status, text) {
+        const icon = document.getElementById('syncIcon');
+        const textEl = document.getElementById('syncText');
+
+        icon.className = `fas fa-circle sync-${status}`;
+        textEl.textContent = text;
+    }
+
+    updateLastRefreshTime () {
+        document.getElementById('lastUpdate').textContent =
+            `Last updated: ${new Date().toLocaleTimeString()}`;
+    }
+
+    showLoading (show) {
+        document.getElementById('loadingState').style.display = show ? 'block' : 'none';
+        document.getElementById('tasksContainer').style.display = show ? 'none' : 'block';
+    }
+
+    showError (message) {
+        // Simple error display - you could enhance this with a proper notification system
+        alert(message);
+    }
+
+    startHeartbeat () {
+        // Send heartbeat every 30 seconds to maintain session
+        setInterval(async () => {
+            try {
+                await this.makeAuthenticatedRequest('/scheduler/heartbeat', { method: 'POST' });
+            } catch (error) {
+                console.warn('Heartbeat failed:', error);
+            }
+        }, 30000);
+
+        // Load pending user details every 10 seconds
+        setInterval(async () => {
+            const pendingUsers = document.querySelectorAll('span.aduser[data-status="requested"]');
+            pendingUsers.forEach(e => {
+                const userId = e.getAttribute('data-id');
+                const details = this.getUserDetails(userId);
+                if (details.status === 'cached') {
+                    e.setAttribute('data-status', 'cached');
+                    e.textContent = details.userDetails.displayName;
+                }
+            });
+        }, 10000);
+    }
+
+    // Utility methods
+    getTaskStatus (percentComplete) {
+        if (percentComplete === 100) return 'completed';
+        if (percentComplete > 0) return 'inProgress';
+        return 'notStarted';
+    }
+
+    getStatusValue (status) {
+        switch (status) {
+            case 'completed': return 100;
+            case 'inProgress': return 50; // This is approximate
+            case 'notStarted': return 0;
+            default: return null;
+        }
+    }
+
+    isTaskOverdue (task) {
+        if (!task.dueDateTime) return false;
+        return new Date(task.dueDateTime) < new Date() && task.percentComplete < 100;
+    }
+
+    escapeHtml (text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
@@ -597,5 +541,6 @@ class TaskTracker {
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new TaskTracker();
+    const app = new TaskTracker();
+    app.refreshTasks();
 });

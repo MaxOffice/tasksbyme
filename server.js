@@ -40,7 +40,8 @@ app.use('/planner', goRoutes);
 // Root route
 app.get('/', (req, res) => {
     if (req.session && req.session.account) {
-        res.redirect('/dashboard');
+        res.sendFile(path.join(__dirname, 'src/public/dashboard.html'))
+        // res.redirect('/dashboard');
     } else {
         res.send(`
             <html>
@@ -58,20 +59,20 @@ app.get('/', (req, res) => {
 });
 
 // Protected dashboard route (placeholder)
-app.get('/dashboard', requireAuth, (req, res) => {
-    res.sendFile(path.join(__dirname, 'src/public/dashboard.html'))
-    // res.send(`
-    //     <html>
-    //         <head><title>Dashboard</title></head>
-    //         <body style="font-family: Arial, sans-serif; margin: 20px;">
-    //             <h1>Welcome, ${req.session.account.name}</h1>
-    //             <p>Email: ${req.session.account.username}</p>
-    //             <p>Dashboard coming soon...</p>
-    //             <a href="/auth/logout">Logout</a>
-    //         </body>
-    //     </html>
-    // `);
-});
+// app.get('/dashboard', requireAuth, (req, res) => {
+//     res.sendFile(path.join(__dirname, 'src/public/dashboard.html'))
+//     // res.send(`
+//     //     <html>
+//     //         <head><title>Dashboard</title></head>
+//     //         <body style="font-family: Arial, sans-serif; margin: 20px;">
+//     //             <h1>Welcome, ${req.session.account.name}</h1>
+//     //             <p>Email: ${req.session.account.username}</p>
+//     //             <p>Dashboard coming soon...</p>
+//     //             <a href="/auth/logout">Logout</a>
+//     //         </body>
+//     //     </html>
+//     // `);
+// });
 
 // Start server
 app.listen(PORT, () => {

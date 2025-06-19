@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <title>Planner Task Tracker</title> -->
-     <title>Tasks Assigned by ME</title>
+    <title>Tasks Assigned by ME</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -16,7 +16,7 @@
         <header class="header">
             <div class="container">
                 <!-- <h1><i class="fas fa-tasks"></i> Planner Task Tracker</h1> -->
-                <h1><i class="fas fa-tasks"></i> Tasks Assigned by ME</h1>                
+                <h1><i class="fas fa-tasks"></i> Tasks Assigned by ME</h1>
                 <div class="stat-item">
                     <div class="stat-number" id="totalTasks">0</div>
                     <div class="stat-label">Total Tasks</div>
@@ -34,13 +34,11 @@
                     <div class="stat-label">Not Started</div>
                 </div>
                 <div class="header-actions">
-                    <button id="filterSortBtn" class="btn btn-secondary hidden">
-                        <i class="fa-solid fa-filter"></i>Filter/Sort
-                    </button>
                     <button id="refreshBtn" class="btn btn-secondary">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
-                    <a href="/auth/logout" class="btn btn-secondary"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+                    <a href="/auth/logout" class="btn btn-secondary"><i class="fa fa-sign-out" aria-hidden="true"></i>
+                        Logout</a>
                     <!-- <div class="user-info">
                         <span id="userEmail"></span>
                         <a href="/auth/logout" class="btn btn-secondary">Logout</a>
@@ -63,36 +61,9 @@
             </div>
         </div>
 
-        <!-- Statistics Dashboard -->
-        <div class="stats-section">
-            <div class="container">
-                <div class="stats-grid">
-                    <!-- <div class="stat-card">
-                        <div class="stat-number" id="totalTasks">0</div>
-                        <div class="stat-label">Total Tasks</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="completedTasks">0</div>
-                        <div class="stat-label">Completed</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="inProgressTasks">0</div>
-                        <div class="stat-label">In Progress</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="notStartedTasks">0</div>
-                        <div class="stat-label">Not Started</div>
-                    </div> -->
-                </div>
-            </div>
-        </div>
-
         <!-- Filters & Controls -->
         <div id="controlsSection" class="controls-section">
             <div class="container">
-                <div id="closeBtn" class="closebutton hidden">
-                    <i class='fa fa-close'></i>
-                </div>
                 <div class="filters">
                     <div class="filter-group">
                         <label for="planFilter">Plan:</label>
@@ -104,15 +75,17 @@
                         <label for="statusFilter">Status:</label>
                         <select id="statusFilter">
                             <option value="">All Status</option>
+                            <option value="notcomplete" selected>All not complete</option>
                             <option value="notStarted">Not Started</option>
                             <option value="inProgress">In Progress</option>
                             <option value="completed">Completed</option>
                         </select>
                     </div>
                     <div class="filter-group">
+                        <label for="searchInput">Search:</label>
                         <input type="text" id="searchInput" placeholder="Search tasks...">
                     </div>
-                    <button id="clearFilters" class="btn btn-outline">Clear Filters</button>
+                    <button id="clearFilters" class="btn btn-primary">Clear Filters</button>
                     <div class="filter-group">
                         <label for="sortBy">Sort by:</label>
                         <select id="sortBy">
@@ -124,35 +97,13 @@
                             <option value="priority">Priority</option>
                         </select>
                     </div>
-
-                    <div class="filter-group hidden">
-                        <label for="sortBy">View:</label>
-                        <div class="filter-buttons-container">
-                            <button id="tableView" class="btn btn-outline active">
-                                <i class="fas fa-list"></i> Table
-                            </button>
-                            <button id="cardView" class="btn btn-outline">
-                                <i class="fas fa-th-large"></i> Cards
-                            </button>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
 
-
         <!-- Tasks Display -->
         <main class="main-content">
             <div class="container">
-                <!-- <div class="view-toggle"> -->
-                <!-- <button id="cardView" class="btn btn-outline active">
-                        <i class="fas fa-th-large"></i> Cards
-                    </button>
-                    <button id="tableView" class="btn btn-outline">
-                        <i class="fas fa-list"></i> Table
-                    </button> -->
-                <!-- </div> -->
 
                 <!-- Loading State -->
                 <div id="loadingState" class="loading-state">
