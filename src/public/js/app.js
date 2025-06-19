@@ -15,6 +15,8 @@ class TaskTracker {
 
         this.userCache = new Map();
 
+        this.tasksFetchInterval = 60000;
+
         this.init();
     }
 
@@ -128,6 +130,11 @@ class TaskTracker {
             this.updateSyncStatus('updating', 'Loading tasks...');
 
             const response = await this.makeAuthenticatedRequest('/api/tasks');
+            
+            if(!response) {
+                throw new Error('Authorization failed. Please log in again, or refresh the page.');
+            }
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -509,6 +516,13 @@ class TaskTracker {
                 }
             });
         }, 10000);
+
+        // Refresh page every minutes
+        setInterval(async () => {
+            console.log('Refreshing tasks...');
+            await this.loadTasks();
+        }, this.tasksFetchInterval);
+
     }
 
     // Utility methods

@@ -77,7 +77,7 @@ async function getUserPlans(accessToken) {
 async function getPlanTasks(accessToken, planId) {
     try {
         const client = getGraphClient(accessToken);
-        const tasks = await client.api(`/planner/plans/${planId}/tasks`).get();
+        const tasks = await client.api(`/planner/plans/${planId}/tasks?$select=id,planId,title,createdBy,percentComplete,priority,dueDateTime,assignments`).get();
         return tasks.value;
     } catch (error) {
         console.error(`Error fetching tasks for plan ${planId}:`, error);
