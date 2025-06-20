@@ -24,6 +24,9 @@ const gracefulShutdown = (server, signalname) => {
     });
 };
 
+// Required for reverse proxies
+app.set('trust proxy', 1)
+
 // Session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET,
