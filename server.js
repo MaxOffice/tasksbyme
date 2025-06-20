@@ -14,6 +14,16 @@ const { startScheduler } = require('./src/services/schedulerService');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const gracefulShutdown = (server, signalname) => {
+    console.log(`\n${signalname} signal received.`);
+    console.log('Closing HTTP server...');
+
+    server.close(() => {
+        console.log('HTTP server closed.');
+        process.exit(0);
+    });
+};
+
 // Session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -41,7 +51,6 @@ app.use('/planner', goRoutes);
 app.get('/', (req, res) => {
     if (req.session && req.session.account) {
         res.sendFile(path.join(__dirname, 'src/public/dashboard.html'))
-        // res.redirect('/dashboard');
     } else {
         res.send(`
             <html>
@@ -58,27 +67,16 @@ app.get('/', (req, res) => {
     }
 });
 
-// Protected dashboard route (placeholder)
-// app.get('/dashboard', requireAuth, (req, res) => {
-//     res.sendFile(path.join(__dirname, 'src/public/dashboard.html'))
-//     // res.send(`
-//     //     <html>
-//     //         <head><title>Dashboard</title></head>
-//     //         <body style="font-family: Arial, sans-serif; margin: 20px;">
-//     //             <h1>Welcome, ${req.session.account.name}</h1>
-//     //             <p>Email: ${req.session.account.username}</p>
-//     //             <p>Dashboard coming soon...</p>
-//     //             <a href="/auth/logout">Logout</a>
-//     //         </body>
-//     //     </html>
-//     // `);
-// });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log('Environment:', process.env.NODE_ENV || 'development');
-    
+
     // Start background scheduler
     startScheduler();
+
+    // Catch interrupts for graceful shutdown
+    process.on('SIGINT', () => gracefulShutdown(server, 'SIGINT'));
+    process.on('SIGTERM', () => gracefulShutdown(server, 'SIGTERM'));
 });
