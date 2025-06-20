@@ -20,14 +20,30 @@ const getUserDetails = async (accessToken, userId) => {
         console.log(`[CACHE HIT] Returning cached details for user: ${userId}`);
         return cachedEntry.userDetails;
     } else {
-        console.log(`[CACHE MISS/EXPIRED] Fetching fresh details for user: ${userId}`);
-        const freshUserDetails = await getOtherUserProfile(accessToken, userId);
-        userCache.set(userId, {
-            userDetails: freshUserDetails,
-            timestamp: currentTime,
-        });
-        console.log(`[CACHE UPDATE] Cached fresh details for user: ${userId}`);
-        return freshUserDetails;
+        try {
+            console.log(`[CACHE MISS/EXPIRED] Fetching fresh details for user: ${userId}`);
+            const freshUserDetails = await getOtherUserProfile(accessToken, userId);
+            userCache.set(userId, {
+                userDetails: freshUserDetails,
+                timestamp: currentTime,
+            });
+            console.log(`[CACHE UPDATE] Cached fresh details for user: ${userId}`);
+            return freshUserDetails;
+        }
+        catch (e) {
+            console.error('Error while fetching details for user %s: %s', userId, e);
+            const unknownUserDetails = {
+                id: userId,
+                displayName: 'Former Member',
+                mail: ''
+            };
+            userCache.set(userId, {
+                userDetails: unknownUserDetails,
+                timestamp: Date.now()
+            })
+            console.log(`[CACHE UPDATE] Cached generic details for unknown user: ${userId}`);
+            return unknownUserDetails;
+        }
     }
 };
 
