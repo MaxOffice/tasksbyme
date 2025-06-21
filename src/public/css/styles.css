@@ -84,6 +84,25 @@ body {
     font-weight: 600;
 }
 
+.header h1 a, .header h1 a:visited {
+    text-decoration: none;
+    color: unset;
+}
+
+.header .logo {
+    width: 3rem;
+    padding: 0;
+    margin: 0;
+    vertical-align: middle;
+    filter: invert(100%) sepia(99%) saturate(11%) hue-rotate(189deg) brightness(104%) contrast(100%);
+}
+
+.header-stats {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
 .header-actions {
     display: flex;
     align-items: center;
@@ -118,7 +137,7 @@ body {
 .btn-primary {
     background-color: var(--primary-btn-background-color);
     color: var(--primary-btn-color);
-    height: 37px; 
+    height: 37px;
 }
 
 .btn-primary:hover {

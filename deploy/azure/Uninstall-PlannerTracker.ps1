@@ -1,11 +1,14 @@
 param(
+    # Specifies your Azure tenant ID
     [Parameter(Mandatory = $true, HelpMessage = "Your Azure tenant ID")]
     [string]$TenantId,
     
+    # Specifies the display name of the Entra ID
+    # App Registration
     [Parameter()]
-    [string]$AppName = "PlannerTaskTracker",
+    [string]$AppName = "Tasks by ME",
     
-    [string]$ResourceGroupPrefix = "rg-plannertracker",
+    [string]$ResourceGroupPrefix = "rg-tasksbyme",
     
     [switch]$Force,
     

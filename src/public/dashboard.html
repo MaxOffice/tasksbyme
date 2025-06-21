@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <title>Planner Task Tracker</title> -->
-    <title>Planner Task Tracker</title>
+    <title>Tasks by ME</title>
+    <link rel="shortcut icon" type="image/png" href="images/logo.png" />
     <link rel="stylesheet" href="/css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -15,22 +16,25 @@
         <!-- Header -->
         <header class="header">
             <div class="container">
-                <h1><i class="fas fa-tasks"></i> Planner Task Tracker</h1>
-                <div class="stat-item">
-                    <div class="stat-number" id="totalTasks">0</div>
-                    <div class="stat-label">Total Tasks</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="completedTasks">0</div>
-                    <div class="stat-label">Completed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="inProgressTasks">0</div>
-                    <div class="stat-label">In Progress</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="notStartedTasks">0</div>
-                    <div class="stat-label">Not Started</div>
+                <!-- <h1><i class="fas fa-tasks"></i> Planner Task Tracker</h1> -->
+                <h1><a href="/"><img src="images/logo.png" alt="logo" class="logo"> Tasks by ME</a></h1>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalTasks">0</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="completedTasks">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="inProgressTasks">0</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="notStartedTasks">0</div>
+                        <div class="stat-label">Not Started</div>
+                    </div>
                 </div>
                 <div class="header-actions">
                     <button id="refreshBtn" class="btn btn-secondary">
@@ -110,16 +114,18 @@
                     <p>Loading tasks...</p>
                 </div>
 
-                <!-- Empty State -->
-                <div id="emptyState" class="empty-state" style="display: none;">
-                    <i class="fas fa-clipboard-list"></i>
-                    <h3>No tasks found</h3>
-                    <p>Try adjusting your filters or refresh to load tasks.</p>
-                </div>
+                <div id="tasksOrEmpty">
+                    <!-- Empty State -->
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No tasks found</h3>
+                        <p>Try adjusting your filters or refresh to load tasks.</p>
+                    </div>
 
-                <!-- Tasks Container -->
-                <div id="tasksContainer" class="tasks-container">
-                    <!-- Tasks will be dynamically inserted here -->
+                    <!-- Tasks Container -->
+                    <div id="tasksContainer" class="tasks-container">
+                        <!-- Tasks will be dynamically inserted here -->
+                    </div>
                 </div>
             </div>
         </main>

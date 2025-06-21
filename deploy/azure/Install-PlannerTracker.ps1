@@ -5,13 +5,15 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$WebAppName,
     
-    [string]$AppName = "PlannerTaskTracker",
+    # Specifies the display name of the Entra ID
+    # App Registration
+    [string]$AppName = "Tasks by ME",
     
     [string]$Location = "eastus",
     
-    [string]$ResourceGroupPrefix = "rg-plannertracker",
+    [string]$ResourceGroupPrefix = "rg-tasksbyme",
     
-    [string]$DeploymentName = "PlannerDeploy",
+    [string]$DeploymentName = "TasksByMeDeploy",
     
     [string]$SecretDisplayName = "DefaultSecret",
     
@@ -40,20 +42,13 @@ function RequireModule {
         Write-Host "📦 Missing module $Name. Install using:"
         Write-Host "     Install-Module $Name -Scope CurrentUser -Force -MinimumVersion $MinimumVersion"
         exit 1
-        # Write-Host "📦 Installing module: $Name"
-        # try {
-        #     Install-Module $Name -Scope CurrentUser -Force -MinimumVersion $MinimumVersion
-        # } catch {
-        #     Write-Error "❌ Cannot install $Name. Please install it manually."
-        #     exit 1
-        # }
     }
 }
 
 RequirePowerShell7
 RequireModule -Name Microsoft.Graph -MinimumVersion 2.0.0
 RequireModule -Name Az.Resources -MinimumVersion 5.0.0
-RequireModule -Name Az.Websites -MinimumVersion 3.0.0
+# RequireModule -Name Az.Websites -MinimumVersion 3.0.0
 
 #endregion
 
@@ -94,7 +89,7 @@ try {
     } else {
         Write-Warning "⚠️ Could not verify web app name availability: $($_.Exception.Message)"
         exit 1
-        Write-Host "Proceeding with deployment. If the name is taken, deployment will fail later."
+        # Write-Host "Proceeding with deployment. If the name is taken, deployment will fail later."
     }
 }
 

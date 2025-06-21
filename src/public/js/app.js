@@ -150,9 +150,10 @@ class TaskTracker {
             console.error('Error loading tasks:', error);
             this.updateSyncStatus('error', 'Error loading tasks');
             this.showError('Failed to load tasks. Please try refreshing.');
-        } finally {
-            this.showLoading(false);
         }
+        // } finally {
+        //     this.showLoading(false);
+        // }
     }
 
     async loadStats () {
@@ -486,7 +487,8 @@ class TaskTracker {
 
     showLoading (show) {
         document.getElementById('loadingState').style.display = show ? 'block' : 'none';
-        document.getElementById('tasksContainer').style.display = show ? 'none' : 'block';
+        // document.getElementById('tasksContainer').style.display = show ? 'none' : 'block';
+        document.getElementById('tasksOrEmpty').style.display = show ? 'none' : 'block';
     }
 
     showError (message) {
@@ -554,7 +556,9 @@ class TaskTracker {
 }
 
 // Initialize the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const app = new TaskTracker();
-    app.refreshTasks();
+    app.showLoading(true);
+    await app.refreshTasks();
+    app.showLoading(false);
 });

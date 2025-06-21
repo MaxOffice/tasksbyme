@@ -8,7 +8,6 @@ const authRoutes = require('./src/routes/auth');
 const apiRoutes = require('./src/routes/api');
 const schedulerRoutes = require('./src/routes/scheduler');
 const goRoutes = require('./src/routes/go');
-const { requireAuth } = require('./src/auth/authMiddleware');
 const { startScheduler } = require('./src/services/schedulerService');
 
 const app = express();
@@ -55,18 +54,7 @@ app.get('/', (req, res) => {
     if (req.session && req.session.account) {
         res.sendFile(path.join(__dirname, 'src/public/dashboard.html'))
     } else {
-        res.send(`
-            <html>
-                <head><title>Planner Task Tracker</title></head>
-                <body style="font-family: Arial, sans-serif; text-align: center; margin-top: 100px;">
-                    <h1>Planner Task Tracker</h1>
-                    <p>Track your Microsoft Planner tasks</p>
-                    <a href="/auth/login" style="background: #0078d4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
-                        Sign in with Microsoft
-                    </a>
-                </body>
-            </html>
-        `);
+        res.sendFile(path.join(__dirname, 'src/public/anonymous.html'))
     }
 });
 
