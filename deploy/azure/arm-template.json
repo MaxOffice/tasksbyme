@@ -1,0 +1,111 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webAppName": {
+            "type": "string"
+        },
+        "tenantId": {
+            "type": "string"
+        },
+        "clientId": {
+            "type": "string"
+        },
+        "clientSecret": {
+            "type": "securestring"
+        },
+        "sessionSecret": {
+            "type": "securestring"
+        },
+        "gitRepoUrl": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "hostingPlanName": "[concat(parameters('webAppName'), '-plan')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2022-03-01",
+            "name": "[variables('hostingPlanName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "F1",
+                "tier": "Free"
+            },
+            "properties": {
+                "reserved": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-03-01",
+            "name": "[parameters('webAppName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+            ],
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "siteConfig": {
+                    "linuxFxVersion": "NODE|18-lts",
+                    "appSettings": [
+                        {
+                            "name": "TENANT_ID",
+                            "value": "[parameters('tenantId')]"
+                        },
+                        {
+                            "name": "CLIENT_ID",
+                            "value": "[parameters('clientId')]"
+                        },
+                        {
+                            "name": "CLIENT_SECRET",
+                            "value": "[parameters('clientSecret')]"
+                        },
+                        {
+                            "name": "SESSION_SECRET",
+                            "value": "[parameters('sessionSecret')]"
+                        },
+                        {
+                            "name": "PORT",
+                            "value": "8080"
+                        },
+                        {
+                            "name": "NODE_ENV",
+                            "value": "production"
+                        },
+                        {
+                            "name": "REDIRECT_URI",
+                            "value": "[concat('https://', parameters('webAppName'), '.azurewebsites.net/auth/callback')]"
+                        },
+                        {
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "false"
+                        }
+                    ]
+                },
+                "httpsOnly": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/sourcecontrols",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('webAppName'), '/web')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+            ],
+            "properties": {
+                "repoUrl": "[parameters('gitRepoUrl')]",
+                "branch": "main",
+                "isManualIntegration": true
+            }
+        }
+    ],
+    "outputs": {
+        "webAppUrl": {
+            "type": "string",
+            "value": "[concat('https://', parameters('webAppName'), '.azurewebsites.net')]"
+        }
+    }
+}

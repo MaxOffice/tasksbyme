@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webAppName": {
+            "value": "an-unique-lowercase-name"
+        },
+        "tenantId": {
+            "value": "YOUR-TENANT-ID" 
+        },
+        "clientId": {
+            "value": "YOUR-CLIENT_AKA_APP-ID"
+        },
+        "clientSecret": {
+            "value": "YOUR-CLIENT-SECRET"
+        },
+        "sessionSecret": {
+            "value": "A-RANDOM-STRING"
+        },
+        "gitRepoUrl": {
+            "value": "YOUR-GIT-REPO"
+        }
+    }
+}
