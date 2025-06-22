@@ -474,6 +474,12 @@ body {
 }
 
 /* Responsive Design */
+@media (max-width: 1166px) {
+    .main-content {
+        padding-top: 15rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .stat-item {
         display: none;
@@ -532,6 +538,25 @@ body {
     .stat-item {
         display: none;
     }
+
+    /* Show only task name and due date columns */
+    .tasks-table thead {
+        background-color: var(--task-table-header-background-color);
+        border-bottom: 1px solid var(--task-table-separator-line-color);
+    }
+
+    .tasks-table table th,
+    .tasks-table table td {
+        display: none;
+        border-bottom: 0;
+    }
+
+    .tasks-table table th:first-child,
+    .tasks-table table td:first-child,
+    .tasks-table table th:nth-child(4) .tasks-table table td:nth-child(4) {
+        display: unset;
+        padding-bottom: 0
+    }
 }
 
 @media (max-width: 480px) {
@@ -544,6 +569,29 @@ body {
         gap: 0.5rem;
         text-align: center;
     }
+
+    .main-content {
+        padding-top: 1rem;
+        padding-bottom: 10rem;
+    }
+
+    .tasks-table thead {
+        background-color: var(--task-table-header-background-color);
+        border-bottom: 1px solid var(--task-table-separator-line-color);
+    }
+
+    /* Show only task name column */
+    .tasks-table table th,
+    .tasks-table table td {
+        display: none;
+    }
+
+    .tasks-table table th:first-child,
+    .tasks-table table td:first-child {
+        display: unset;
+        padding-bottom: 0;
+    }
+
 }
 
 /* Animations */
