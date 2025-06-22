@@ -37,17 +37,24 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button id="refreshBtn" class="btn btn-secondary">
+                    <button id="refreshBtn" type="button" class="btn btn-primary">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
-                    <a href="/auth/logout" class="btn btn-secondary"><i class="fa fa-sign-out" aria-hidden="true"></i>
-                        Logout</a>
-                    <!-- <div class="user-info">
-                        <span id="userEmail"></span>
-                        <a href="/auth/logout" class="btn btn-secondary">Logout</a>
-                    </div> -->
+                    <div class="user-profile-dropdown">
+                        <button id="userProfileBtn" type="button" class="user-info-btn">
+                            <span id="currentUserName">Loading...</span>
+                            <i class="fas fa-caret-down"></i>
+                        </button>
+                        <div id="userProfilePanel" class="user-profile-panel hidden">
+                            <div class="user-profile-info">
+                                <p id="panelUserName">Name: Loading...</p>
+                                <p id="panelUserEmail">Email: Loading...</p>
+                            </div>
+                            <a href="/auth/logout" class="btn logout-panel-btn"><i class="fa fa-sign-out"
+                                    aria-hidden="true"></i> Logout</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
         </header>
 
         <!-- Status Bar -->
@@ -88,7 +95,7 @@
                         <label for="searchInput">Search:</label>
                         <input type="text" id="searchInput" placeholder="Search tasks...">
                     </div>
-                    <button id="clearFilters" class="btn btn-primary">Clear Filters</button>
+                    <button id="clearFilters" type="button" class="btn btn-primary">Clear Filters</button>
                     <div class="filter-group">
                         <label for="sortBy">Sort by:</label>
                         <select id="sortBy">

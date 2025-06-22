@@ -8,6 +8,17 @@ const { getUserDetails } = require('../services/profileService');
 const router = express.Router();
 
 /**
+ * Get details of the current user from session
+ */
+router.get('/me', requireAuthApi, (req, res) => {
+    res.json({
+        id: req.session.account.localAccountId,
+        displayName: req.session.account.name,
+        mail: req.session.account.username
+    });
+})
+
+/**
  * Get details of the specified user from cache or Graph API
  */
 router.get('/users/:id', requireAuthApi, ensureAccessToken, async (req, res) => {

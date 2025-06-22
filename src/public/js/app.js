@@ -23,6 +23,7 @@ class TaskTracker {
     async init () {
         this.bindEvents();
         this.showLoading(true);
+        this.getCurrentUser();
         await this.loadTasks();
         await this.loadStats();
         this.updateLastRefreshTime();
@@ -56,6 +57,25 @@ class TaskTracker {
         } catch (error) {
             console.error('API request failed:', error);
             throw error;
+        }
+    }
+
+    async getCurrentUser () {
+        const currentUsername = document.getElementById('currentUserName');
+        const panelUserName = document.getElementById('panelUserName');
+        const panelUserEmail = document.getElementById('panelUserEmail');
+
+        const response = await this.makeAuthenticatedRequest(`/api/me`);
+        if (response.ok) {
+            const currentUser = await response.json();
+            currentUsername.textContent = currentUser.displayName;
+            panelUserName.textContent = currentUser.displayName
+            panelUserEmail.textContent = currentUser.mail;
+        } else {
+            console.log('[ERROR]: Could not fetch details for user');
+            currentUsername.textContent = 'Error';
+            panelUserName.textContent = 'Error'
+            panelUserEmail.textContent = '';
         }
     }
 
@@ -123,6 +143,20 @@ class TaskTracker {
         document.getElementById('clearFilters').addEventListener('click', () => {
             this.clearFilters();
         });
+
+        // Current user
+        const userProfilePanel = document.getElementById('userProfilePanel');
+        document.getElementById('userProfileBtn').addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent document click from closing it immediately
+            userProfilePanel.classList.toggle('hidden');
+        });;
+
+        // Close the panel when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!userProfilePanel.contains(event.target) && !userProfileBtn.contains(event.target)) {
+                userProfilePanel.classList.add('hidden');
+            }
+        });
     }
 
     async loadTasks () {
@@ -130,8 +164,8 @@ class TaskTracker {
             this.updateSyncStatus('updating', 'Loading tasks...');
 
             const response = await this.makeAuthenticatedRequest('/api/tasks');
-            
-            if(!response) {
+
+            if (!response) {
                 throw new Error('Authorization failed. Please log in again, or refresh the page.');
             }
 
