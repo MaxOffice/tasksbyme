@@ -49,7 +49,7 @@
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
                 "siteConfig": {
-                    "linuxFxVersion": "NODE|24-lts",
+                    "linuxFxVersion": "NODE|22-lts",
                     "appSettings": [
                         {
                             "name": "TENANT_ID",
