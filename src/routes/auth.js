@@ -59,7 +59,8 @@ router.get('/logout', (req, res) => {
         }
         
         // Redirect to Microsoft logout
-        const logoutUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent('http://localhost:3000')}`;
+        const siteRootUrl = `${req.protocol}://${req.get('host')}`
+        const logoutUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(siteRootUrl)}`;
         res.redirect(logoutUrl);
     });
 });
