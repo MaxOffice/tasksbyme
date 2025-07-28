@@ -1,0 +1,17 @@
+services:
+  tasksbyme:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - target: 8080
+        published: 18080
+        protocol: tcp
+        mode: host
+    environment:
+      - TENANT_ID=${TENANT_ID}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET:-verysecret}
+      - REDIRECT_URI=${REDIRECT_URI:-http://localhost:18080/auth/callback}
+      - NODE_ENV=${NODE_ENV:-development}
