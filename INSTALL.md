@@ -27,7 +27,7 @@ Install-Module -Name MaxOffice.TasksByMe.Azure -Scope CurrentUser
 ### Deploy Everything at Once
 
 ```powershell
-Install-TasksByMeAzureWebApp -WebAppName "my-tasks-app"
+Install-TasksByMeAzureWebApp -WebAppName "my-tasks-app -Verbose"
 ```
 
 This command will:
@@ -39,7 +39,7 @@ This command will:
 ### Check Deployment Status
 
 ```powershell
-Get-TasksByMeAzureWebApp -WebAppName "my-tasks-app"
+Get-TasksByMeAzureWebApp -WebAppName "my-tasks-app -Verbose"
 ```
 
 or browse to:
@@ -51,7 +51,7 @@ https://my-tasks-app.azurewebsites.net
 ### Remove Deployment
 
 ```powershell
-Remove-TasksByMeAzureWebApp -WebAppName "my-tasks-app" -RemoveResourceGroup -RemoveEntraApp
+Remove-TasksByMeAzureWebApp -WebAppName "my-tasks-app" -RemoveResourceGroup -RemoveEntraApp -Verbose
 ```
 
 ### Authenticating to Azure and Microsoft 365
@@ -126,7 +126,7 @@ The following environment variables will have to be set for the app to run:
 | `SESSION_SECRET` | Random string for session encryption. Set it to any random string. |
 | `REDIRECT_URI` | Redirect URL of Entra ID app. Set it to `YOURAPPURL/auth/callback`.|
 | `PORT` | Port number for the web server. The default is 8080. Change only if needed. |
-| `NODE_ENV` | Environment mode. Set it to 'production', or 'development' if https is not available. Note that `development` will only work if the URL begins with `http://localhost`. |
+| `NODE_ENV` | Environment mode. Set it to 'production', or 'development' if https is not available. Note that 'development' will only work if the URL begins with `http://localhost`, and 'production' will only work if https is available. |
 
 Set them using your environment's native method. Alternatively, create an `.env` file in the application root directory, with all the variables and their values.
 
@@ -136,7 +136,7 @@ Once the app is deployed, remember to update its URL in the Entra ID app using `
 
 Tasks by me can also be run in a container. An image called `ghcr.io/maxoffice/tasksbyme` is available on the GitHub container registry. This repository also includes a Docker Compose manifest file for a quick start.
 
-In either case, you should first create a file called `.env` in the application root directory, as described in the previous section, with appropriate values for all fields.
+In either case, you should first create a file called `.env` in the application root directory, as described in the previous section, with appropriate values for at least the `TENANT_ID`, `CLIENT_ID` and `CLIENT_SECRET` fields.
 
 #### Deploy with Docker Compose
 
