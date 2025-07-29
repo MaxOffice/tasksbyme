@@ -5,24 +5,8 @@
 
 # Module Constants
 $script:AppDisplayName = "Tasks by Me"
-$script:LogoUrl = "https://raw.githubusercontent.com/MaxOffice/planner-task-tracker/refs/heads/development/deploy/azure/logo.png"
+$script:LogoUrl = "https://raw.githubusercontent.com/MaxOffice/tasksbyme/refs/heads/main/assets/logo.png"
 $script:NotSetMessage = "Not set. Please configure using Set-TasksByMeAppUrl."
-
-# Module Manifest would be in MaxOffice.TasksByMe.Entra.psd1:
-<#
-@{
-    ModuleVersion = '1.0.0'
-    GUID = 'a1b2c3d4-e5f6-7890-1234-567890abcdef'
-    Author = 'Your Name'
-    Description = 'PowerShell module for managing Tasks by Me Entra ID application'
-    PowerShellVersion = '5.1'
-    RequiredModules = @('Microsoft.Graph.Applications', 'Microsoft.Graph.Authentication')
-    FunctionsToExport = @('Install-TasksByMeApp', 'Set-TasksByMeAppUrl', 'Get-TasksByMeApp', 'Remove-TasksByMeApp')
-    CmdletsToExport = @()
-    VariablesToExport = @()
-    AliasesToExport = @()
-}
-#>
 
 # Helper function to ensure Graph connection
 function EnsureGraphConnection {

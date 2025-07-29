@@ -97,7 +97,7 @@
             ],
             "properties": {
                 "repoUrl": "[parameters('gitRepoUrl')]",
-                "branch": "development",
+                "branch": "main",
                 "isManualIntegration": true
             }
         }

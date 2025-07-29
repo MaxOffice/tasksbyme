@@ -179,7 +179,7 @@ $deployment = New-AzResourceGroupDeployment -Name $DeploymentName `
         clientId     = $app.AppId
         clientSecret = $secret.SecretText
         sessionSecret= $SessionSecret
-        gitRepoUrl   = "https://github.com/maxoffice/planner-task-tracker"
+        gitRepoUrl   = "https://github.com/maxoffice/tasksbyme"
     }
 
 $webAppUrl = $deployment.Outputs.webAppUrl.Value

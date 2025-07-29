@@ -4,24 +4,8 @@
 #Requires -Modules Az.Resources, Az.Websites, MaxOffice.TasksByMe.Entra
 
 # Module Constants
-$script:ArmTemplateUrl = "https://raw.githubusercontent.com/MaxOffice/planner-task-tracker/refs/heads/development/deploy/azure/arm-template.json"
-$script:DefaultGitRepoUrl = "https://github.com/maxoffice/planner-task-tracker"
-
-# Module Manifest would be in MaxOffice.TasksByMe.Azure.psd1:
-<#
-@{
-    ModuleVersion = '1.0.0'
-    GUID = 'b2c3d4e5-f6a7-8901-2345-678901bcdefg'
-    Author = 'Your Name'
-    Description = 'PowerShell module for deploying Tasks by Me to Azure App Service'
-    PowerShellVersion = '5.1'
-    RequiredModules = @('Az.Resources', 'Az.Websites', 'MaxOffice.TasksByMe.Entra')
-    FunctionsToExport = @('Install-TasksByMeAzureWebApp', 'Get-TasksByMeAzureWebApp', 'Remove-TasksByMeAzureWebApp')
-    CmdletsToExport = @()
-    VariablesToExport = @()
-    AliasesToExport = @()
-}
-#>
+$script:ArmTemplateUrl = "https://raw.githubusercontent.com/MaxOffice/tasksbyme/refs/heads/main/deploy/azure/arm-template.json"
+$script:DefaultGitRepoUrl = "https://github.com/maxoffice/tasksbyme"
 
 # Helper function to ensure Azure connection
 function EnsureAzureConnection {

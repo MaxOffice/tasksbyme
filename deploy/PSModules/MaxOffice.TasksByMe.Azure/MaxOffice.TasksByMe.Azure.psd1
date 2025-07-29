@@ -1,61 +1,55 @@
+# MaxOffice.TasksByMe.Azure.psd1
+# PowerShell Module Manifest for Tasks by Me web Application Management on Azure App Service
+
 @{
-    # Script module or binary module file associated with this manifest
     RootModule = 'MaxOffice.TasksByMe.Azure.psm1'
 
-    # Version number of this module
     ModuleVersion = '1.0.0'
 
-    # ID used to uniquely identify this module
+    CompatiblePSEditions = @('Desktop', 'Core')
+
     GUID = 'f6112817-650d-4460-bf40-87861385ad45'
 
-    # Author of this module
-    Author = 'Your Name'
+    Author = 'MaxOffice'
 
-    # Company or vendor of this module
     CompanyName = 'MaxOffice'
 
-    # Description of the functionality provided by this module
-    Description = 'PowerShell module for deploying Tasks by Me to Azure App Service'
+    Copyright = '(c) 2025 MaxOffice. All rights reserved.'
 
-    # Minimum version of the PowerShell engine required by this module
+    Description = 'PowerShell module for deploying Tasks by Me to Azure App Service (Free Tier)'
+
     PowerShellVersion = '5.1'
 
-    # Modules required by this module
     RequiredModules = @(
         'Az.Resources',
         'Az.Websites',
         'MaxOffice.TasksByMe.Entra'
     )
 
-    # Assemblies used by this module
-    RequiredAssemblies = @()
-
-    # Functions exported from this module
     FunctionsToExport = @(
         'Install-TasksByMeAzureWebApp',
         'Get-TasksByMeAzureWebApp',
         'Remove-TasksByMeAzureWebApp'
     )
 
-    # Cmdlets exported from this module
     CmdletsToExport = @()
 
-    # Variables to export from this module
     VariablesToExport = @()
 
-    # Aliases to export from this module
     AliasesToExport = @()
 
-    # Private data to pass to the module specified in RootModule
     PrivateData = @{
         PSData = @{
             Tags = @('Azure', 'PowerShell', 'Deployment', 'AppService', 'TasksByMe')
-            LicenseUri = 'https://opensource.org/licenses/MIT'
-            ProjectUri = 'https://github.com/maxoffice/planner-task-tracker'
-            IconUri = 'https://raw.githubusercontent.com/maxoffice/planner-task-tracker/main/assets/icon.png'
+            LicenseUri = 'https://github.com/maxoffice/tasksbyme/blob/main/LICENSE'
+            ProjectUri = 'https://github.com/maxoffice/tasksbyme'
+            IconUri = 'https://raw.githubusercontent.com/maxoffice/tasksbyme/main/assets/logo.png'
+                        ReleaseNotes = @'
+1.0.0 - Initial release
+- Install-TasksByMeAzureWebApp : Deploy Tasks by Me web app as an Azure Web App (free tier) from the GitHub repo
+- Get-TasksByMeAzureWebApp     : Display comprehensive information for Tasks by Me Azure Web App
+- Remove-TasksByMeAzureWebApp  : Delete Tasks by Me Azure Web App
+'@
         }
     }
-
-    # HelpInfo URI for online help
-    HelpInfoURI = ''
 }

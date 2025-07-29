@@ -1,7 +1,7 @@
 {
-  "name": "planner-task-tracker",
+  "name": "tasksbyme",
   "version": "0.1.0",
-  "description": "View all tasks created by the current user.",
+  "description": "View all Planner tasks created/owned by the current user in a Microsoft 365 tenant.",
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
