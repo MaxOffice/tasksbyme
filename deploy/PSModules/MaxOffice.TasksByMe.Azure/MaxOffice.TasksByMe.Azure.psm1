@@ -7,14 +7,19 @@
 $script:ArmTemplateUrl = "https://raw.githubusercontent.com/MaxOffice/tasksbyme/refs/heads/main/deploy/azure/arm-template.json"
 $script:DefaultGitRepoUrl = "https://github.com/maxoffice/tasksbyme"
 
+# Helper function to show browser UI for login
+function Show-LoginUI {
+    Write-Host "No active Azure connection found. Connecting to Azure..."
+    Write-Host "In your browser, please sign in using an account with Azure admin privileges." -ForegroundColor Yellow
+    Connect-AzAccount | Out-Null
+    Write-Host "Successfully connected to Azure"
+}
 # Helper function to ensure Azure connection
 function EnsureAzureConnection {
     try {
         $context = Get-AzContext
         if (-not $context) {
-            Write-Verbose "No active Azure connection found. Connecting to Azure..."
-            Connect-AzAccount | Out-Null
-            Write-Verbose "Successfully connected to Azure"
+            Show-LoginUI
         }
         else {
             Write-Verbose "Using existing Azure connection for subscription: $($context.Subscription.Name)"
@@ -84,7 +89,6 @@ function TestWebsiteExists {
         else {
             # Website exists but returned an error (500, etc.)
             Write-Verbose "Website exists but returned error: $_"
-            Write-Verbose $_
             return $true
         }
     }
@@ -154,6 +158,11 @@ function Install-TasksByMeAzureWebApp {
         [string]$GitRepoUrl = $script:DefaultGitRepoUrl
     )
 
+    # Initialize tracking variables
+    $createdEntraApp = $false
+    $createdResourceGroup = $false
+    $templateFile = $null
+
     try {
         # Set default resource group name if not provided
         if (-not $ResourceGroupName) {
@@ -170,104 +179,152 @@ function Install-TasksByMeAzureWebApp {
         # Download ARM template
         $templateFile = DownloadArmTemplate
         if (-not $templateFile) {
-            Write-Error "Failed to download ARM template. Deployment aborted."
+            Write-Error "Failed to download ARM template. Installation aborted."
             return $null
         }
 
-        try {
-            # Get authentication parameters
-            if ($PSCmdlet.ParameterSetName -eq 'CreateApp') {
-                Write-Verbose "Creating new Entra ID application..."
-                $appResult = Install-TasksByMeApp
-                if (-not $appResult) {
-                    Write-Error "Failed to create Entra ID application. Deployment aborted."
-                    return $null
-                }
-
-                $TenantId = $appResult.TenantId
-                $ClientId = $appResult.ClientId
-                $ClientSecret = $appResult.ClientSecret
-
-                Write-Verbose "Created Entra ID application with Client ID: $ClientId"
-            }
-
-            # Generate session secret
-            $sessionSecret = GenerateSessionSecret
-            Write-Verbose "Generated session secret"
-
-            # Now ensure Azure connection is available for deployment
-            if (-not (EnsureAzureConnection)) {
+        # Get authentication parameters
+        if ($PSCmdlet.ParameterSetName -eq 'CreateApp') {
+            Write-Verbose "Creating new Entra ID application..."
+            $appResult = Install-TasksByMeApp
+            if (-not $appResult) {
+                Write-Error "Failed to create Entra ID application. Installation aborted."
                 return $null
             }
 
-            # Create resource group if it doesn't exist
-            $existingRg = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction SilentlyContinue
-            if (-not $existingRg) {
-                Write-Verbose "Creating resource group: $ResourceGroupName"
-                $location = "East US"  # Default location
-                New-AzResourceGroup -Name $ResourceGroupName -Location $location | Out-Null
-                Write-Verbose "Created resource group in location: $location"
-            }
-            else {
-                Write-Verbose "Using existing resource group: $ResourceGroupName"
-            }
+            $createdEntraApp = $true  # TRACKING: We created this app
+            $TenantId = $appResult.TenantId
+            $ClientId = $appResult.ClientId
+            $ClientSecret = $appResult.ClientSecret
 
-            # Prepare deployment parameters
-            # $deploymentParams = @{
-            #     webAppName = $WebAppName
-            #     tenantId = $TenantId
-            #     clientId = $ClientId
-            #     clientSecret = ConvertTo-SecureString $ClientSecret -AsPlainText -Force
-            #     sessionSecret = ConvertTo-SecureString $sessionSecret -AsPlainText -Force
-            #     gitRepoUrl = $GitRepoUrl
-            # }
-            $deploymentParams = @{
-                webAppName = $WebAppName
-                tenantId = $TenantId
-                clientId = $ClientId
-                clientSecret = $ClientSecret
-                sessionSecret = $sessionSecret
-                gitRepoUrl = $GitRepoUrl
-            }
+            Write-Verbose "Created Entra ID application with Client ID: $ClientId"
+        }
 
-            # Deploy ARM template
-            Write-Verbose "Starting ARM template deployment..."
-            $deployment = New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroupName -TemplateFile $templateFile -TemplateParameterObject $deploymentParams -Name "TasksByMe-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        # Generate session secret
+        $sessionSecret = GenerateSessionSecret
+        Write-Verbose "Generated session secret"
 
-            if ($deployment.ProvisioningState -eq 'Succeeded') {
-                $webAppUrl = $deployment.Outputs.webAppUrl.Value
-                Write-Verbose "Deployment completed successfully"
+        # Now ensure Azure connection is available for deployment
+        if (-not (EnsureAzureConnection)) {
+            throw "Failed to establish Azure connection"
+        }
 
-                # Update Entra ID app with correct URLs if we created it
-                if ($PSCmdlet.ParameterSetName -eq 'CreateApp') {
+        # Create resource group if it doesn't exist
+        $existingRg = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction SilentlyContinue
+        if (-not $existingRg) {
+            Write-Verbose "Creating resource group: $ResourceGroupName"
+            $location = "East US"  # Default location
+            New-AzResourceGroup -Name $ResourceGroupName -Location $location | Out-Null
+            $createdResourceGroup = $true  # TRACKING: We created this resource group
+            Write-Verbose "Created resource group in location: $location"
+        }
+        else {
+            Write-Verbose "Using existing resource group: $ResourceGroupName"
+        }
+
+        # Prepare deployment parameters
+        $deploymentParams = @{
+            webAppName    = $WebAppName
+            tenantId      = $TenantId
+            clientId      = $ClientId
+            clientSecret  = $ClientSecret
+            sessionSecret = $sessionSecret
+            gitRepoUrl    = $GitRepoUrl
+        }
+
+        # Deploy ARM template
+        Write-Verbose "Starting ARM template deployment..."
+        $deploymentName = "TasksByMe-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        $deployment = New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroupName -TemplateFile $templateFile -TemplateParameterObject $deploymentParams -Name $deploymentName
+
+        if ($deployment.ProvisioningState -eq 'Succeeded') {
+            $webAppUrl = $deployment.Outputs.webAppUrl.Value
+            Write-Verbose "Deployment completed successfully"
+
+            # Update Entra ID app with correct URLs if we created it
+            if ($createdEntraApp) {
+                # TRACKING: Only update if we created the app
+                try {
                     Write-Verbose "Updating Entra ID application URLs..."
                     Set-TasksByMeAppUrl -BaseUri $webAppUrl -Confirm:$false
                 }
-
-                return [PSCustomObject]@{
-                    WebAppName = $WebAppName
-                    WebAppUrl = $webAppUrl
-                    ResourceGroupName = $ResourceGroupName
-                    TenantId = $TenantId
-                    ClientId = $ClientId
-                    DeploymentStatus = 'Succeeded'
+                catch {
+                    Write-Warning "Failed to update Entra ID application URLs: $_. You may need to update them manually."
                 }
             }
-            else {
-                Write-Error "Deployment failed with status: $($deployment.ProvisioningState)"
-                return $null
+
+            return [PSCustomObject]@{
+                WebAppName        = $WebAppName
+                WebAppUrl         = $webAppUrl
+                ResourceGroupName = $ResourceGroupName
+                TenantId          = $TenantId
+                ClientId          = $ClientId
+                DeploymentStatus  = 'Succeeded'
             }
         }
-        finally {
-            # Clean up template file
-            if (Test-Path $templateFile) {
-                Remove-Item $templateFile -Force -ErrorAction SilentlyContinue
-            }
+        else {
+            throw "Deployment failed with status: $($deployment.ProvisioningState)"
         }
     }
     catch {
-        Write-Error "Failed to deploy application: $_"
+        Write-Error "Installation failed: $_"
+
+        # CLEANUP LOGIC using tracking variables
+        Write-Verbose "Attempting to clean up created resources..."
+
+        # Clean up Azure resources if deployment failed
+        try {
+            if ($createdResourceGroup) {
+                # TRACKING: We created the RG, remove it entirely
+                Write-Verbose "Cleaning up created resource group: $ResourceGroupName"
+                $rgResources = Get-AzResource -ResourceGroupName $ResourceGroupName -ErrorAction SilentlyContinue
+                if (-not $rgResources -or $rgResources.Count -eq 0) {
+                    Remove-AzResourceGroup -Name $ResourceGroupName -Force -ErrorAction SilentlyContinue
+                    Write-Verbose "Removed created resource group"
+                }
+                else {
+                    Write-Warning "Cannot clean up resource group $ResourceGroupName as it contains resources"
+                }
+            }
+            else {
+                # TRACKING: RG existed before, only clean up our resources
+                $webApp = Get-AzWebApp -ResourceGroupName $ResourceGroupName -Name $WebAppName -ErrorAction SilentlyContinue
+                if ($webApp) {
+                    Write-Verbose "Cleaning up partially created web app: $WebAppName"
+                    Remove-AzWebApp -ResourceGroupName $ResourceGroupName -Name $WebAppName -Force -ErrorAction SilentlyContinue
+                }
+
+                $appServicePlan = Get-AzAppServicePlan -ResourceGroupName $ResourceGroupName -Name "$WebAppName-plan" -ErrorAction SilentlyContinue
+                if ($appServicePlan) {
+                    Write-Verbose "Cleaning up partially created app service plan: $WebAppName-plan"
+                    Remove-AzAppServicePlan -ResourceGroupName $ResourceGroupName -Name "$WebAppName-plan" -Force -ErrorAction SilentlyContinue
+                }
+            }
+        }
+        catch {
+            Write-Warning "Failed to clean up Azure resources: $_"
+        }
+
+        # Clean up Entra ID app if we created it
+        if ($createdEntraApp) {
+            # TRACKING: Only remove if we created it
+            try {
+                Write-Verbose "Cleaning up created Entra ID application"
+                Remove-TasksByMeApp -Confirm:$false
+                Write-Verbose "Removed created Entra ID application"
+            }
+            catch {
+                Write-Warning "Failed to clean up Entra ID application: $_. You may need to remove it manually."
+            }
+        }
+
         return $null
+    }
+    finally {
+        # Always clean up template file
+        if ($templateFile -and (Test-Path $templateFile)) {
+            Remove-Item $templateFile -Force -ErrorAction SilentlyContinue
+        }
     }
 }
 
@@ -319,15 +376,15 @@ function Get-TasksByMeAzureWebApp {
         }
 
         return [PSCustomObject]@{
-            WebAppName = $webApp.Name
+            WebAppName        = $webApp.Name
             ResourceGroupName = $webApp.ResourceGroup
-            WebAppUrl = "https://$($webApp.DefaultHostName)"
-            Location = $webApp.Location
-            State = $webApp.State
-            TenantId = $appSettings['TENANT_ID']
-            ClientId = $appSettings['CLIENT_ID']
-            NodeVersion = $webApp.SiteConfig.LinuxFxVersion
-            LastModifiedTime = $webApp.LastModifiedTimeUtc
+            WebAppUrl         = "https://$($webApp.DefaultHostName)"
+            Location          = $webApp.Location
+            State             = $webApp.State
+            TenantId          = $appSettings['TENANT_ID']
+            ClientId          = $appSettings['CLIENT_ID']
+            NodeVersion       = $webApp.SiteConfig.LinuxFxVersion
+            LastModifiedTime  = $webApp.LastModifiedTimeUtc
         }
     }
     catch {

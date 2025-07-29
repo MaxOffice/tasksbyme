@@ -8,14 +8,22 @@ $script:AppDisplayName = "Tasks by Me"
 $script:LogoUrl = "https://raw.githubusercontent.com/MaxOffice/tasksbyme/refs/heads/main/assets/logo.png"
 $script:NotSetMessage = "Not set. Please configure using Set-TasksByMeAppUrl."
 
+
+# Helper function to show browser UI for login
+function Show-LoginUI {
+    Write-Host "No active Graph connection found. Connecting to Microsoft Graph..."
+    Write-Host "In your browser, please sign in using a Microsoft 365 admin account." -ForegroundColor Yellow
+    Connect-MgGraph -Scopes "Application.ReadWrite.All" -NoWelcome
+    Write-Host "Successfully connected to Microsoft Graph"
+}
+
 # Helper function to ensure Graph connection
 function EnsureGraphConnection {
     try {
+        Write-Verbose "Trying to connect to Microsoft Graph..."
         $context = Get-MgContext
         if (-not $context) {
-            Write-Verbose "No active Graph connection found. Connecting to Microsoft Graph..."
-            Connect-MgGraph -Scopes "Application.ReadWrite.All" -NoWelcome
-            Write-Verbose "Successfully connected to Microsoft Graph"
+            Show-LoginUI
         }
         else {
             Write-Verbose "Using existing Graph connection for tenant: $($context.TenantId)"
@@ -328,14 +336,14 @@ function Get-TasksByMeApp {
         }
 
         return [PSCustomObject]@{
-            ObjectId         = $detailedApp.Id
-            DisplayName      = $detailedApp.DisplayName
-            TenantId         = (Get-MgContext).TenantId
-            ClientId         = $detailedApp.AppId
-            ClientSecret     = $secretInfo
-            HomePageUrl      = $homePageUrl
-            RedirectUrl      = if ($redirectUris) { $redirectUris -join "; " } else { $script:NotSetMessage }
-            Status           = $status
+            ObjectId     = $detailedApp.Id
+            DisplayName  = $detailedApp.DisplayName
+            TenantId     = (Get-MgContext).TenantId
+            ClientId     = $detailedApp.AppId
+            ClientSecret = $secretInfo
+            HomePageUrl  = $homePageUrl
+            RedirectUrl  = if ($redirectUris) { $redirectUris -join "; " } else { $script:NotSetMessage }
+            Status       = $status
         }
     }
     catch {
