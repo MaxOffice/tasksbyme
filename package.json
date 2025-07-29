@@ -1,8 +1,8 @@
 {
   "name": "tasksbyme",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "View all Planner tasks created/owned by the current user in a Microsoft 365 tenant.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon --ignore data/* server.js",
