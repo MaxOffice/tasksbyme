@@ -6,7 +6,7 @@ param(
     # Specifies the display name of the Entra ID
     # App Registration
     [Parameter()]
-    [string]$AppName = "Tasks by ME",
+    [string]$AppName = "Tasks by Me",
     
     [string]$ResourceGroupPrefix = "rg-tasksbyme",
     
