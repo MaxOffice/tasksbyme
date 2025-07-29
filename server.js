@@ -3,6 +3,17 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 
+// Check for required environment variables
+missingVarsMessage = ['TENANT_ID','CLIENT_ID','CLIENT_SECRET', 'SESSION_SECRET', 'REDIRECT_URI']
+                            .map((value) => process.env[value] ? '' : `- ${value}`)
+                            .join("\n")
+                            .trim();
+
+if(missingVarsMessage) {
+    console.error(`The following environment variables have not been set. Cannot continue.\n${missingVarsMessage}`);
+    process.exit(1);
+}
+
 // Import routes
 const authRoutes = require('./src/routes/auth');
 const apiRoutes = require('./src/routes/api');
@@ -11,7 +22,7 @@ const goRoutes = require('./src/routes/go');
 const { startScheduler } = require('./src/services/schedulerService');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 const gracefulShutdown = (server, signalname) => {
     console.log(`\n${signalname} signal received.`);
@@ -58,9 +69,11 @@ app.get('/', (req, res) => {
     }
 });
 
+const packageInfo = require('./package.json');
 
 // Start server
 const server = app.listen(PORT, () => {
+    console.log(`Tasks by Me Web App Version ${packageInfo.version}`);
     console.log(`Server running on http://localhost:${PORT}`);
     console.log('Environment:', process.env.NODE_ENV || 'development');
 
