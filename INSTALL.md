@@ -16,7 +16,7 @@ Alternatively, you can set up the Entra ID app yourself, and deploy the web app 
 
 The easiest way to deploy Tasks by Me is using a PowerShell module that handles both Entra ID app registration and Azure deployment. The module, `MaxOffice.TasksByMe.Azure`, installs the Tasks by Me app to a Azure Web App (Free Tier). It also registers an Entra ID app, and configures the Azure Web App to use that to access the Microsoft Graph API.
 
-> [! NOTE]
+> [!NOTE]
 > The Azure Web app is always hosted in the "East US" region. Since Tasks by Me does not store any data, and only shows data retrieved from the user's Micrsoft 365 tenant, this does not have any compliance or data residency implications.
 
 You will need to provide a name for the web app that is globally unique. The module will automatically check if a dns name in the format `WEBAPPNAME.azurewebsites.net` is available, and will fail the installation if not. After the deployment is succesfully completed, Tasks by Me can be accessed by navigating to `https://WEBAPPNAME.azurewebsites.net`. In the examples shown below, the name "my-tasks-app" has been used. Replace that with your unique name.
