@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tasks by me requires:
+Tasks by Me requires:
 
 1. An Entra ID app registration in your Microsoft 365 tenant.  
 1. Deployment of the Tasks by Me web application, configured with parameters from the Entra ID app registration. This can be deployed on any infrastructure, as long as a public URL is available. 
@@ -14,9 +14,12 @@ Alternatively, you can set up the Entra ID app yourself, and deploy the web app 
 
 ## Deploy to Azure App Services (Recommended)
 
-The easiest way to deploy Tasks by Me is using a PowerShell module that handles both Entra ID app registration and Azure deployment. The module, `MaxOffice.TasksByMe.Azure`, installs the Tasks by Me app to a Azure Web App (Free Tier), hosted in the "East US" region. It also registers an Entra ID app, and configures the Azure Web App to use that to access the Microsoft Graph API.
+The easiest way to deploy Tasks by Me is using a PowerShell module that handles both Entra ID app registration and Azure deployment. The module, `MaxOffice.TasksByMe.Azure`, installs the Tasks by Me app to a Azure Web App (Free Tier). It also registers an Entra ID app, and configures the Azure Web App to use that to access the Microsoft Graph API.
 
-You will need to provide a name for the web app that is globally unique. The module will automatically check if a dns name in the format `WEBAPPNAME.azurewebsites.net` is available, and will fail the installation if not. After the deployment is succesfully completed, Tasks by Me can be accessed by navigating to `https://WEBAPPNAME.azurewebsites.net`.
+> [! NOTE]
+> The Azure Web app is always hosted in the "East US" region. Since Tasks by Me does not store any data, and only shows data retrieved from the user's Micrsoft 365 tenant, this does not have any compliance or data residency implications.
+
+You will need to provide a name for the web app that is globally unique. The module will automatically check if a dns name in the format `WEBAPPNAME.azurewebsites.net` is available, and will fail the installation if not. After the deployment is succesfully completed, Tasks by Me can be accessed by navigating to `https://WEBAPPNAME.azurewebsites.net`. In the examples shown below, the name "my-tasks-app" has been used. Replace that with your unique name.
 
 ### Install the PowerShell Module
 
@@ -27,7 +30,7 @@ Install-Module -Name MaxOffice.TasksByMe.Azure -Scope CurrentUser
 ### Deploy Everything at Once
 
 ```powershell
-Install-TasksByMeAzureWebApp -WebAppName "my-tasks-app -Verbose"
+Install-TasksByMeAzureWebApp -WebAppName "my-tasks-app" -Verbose
 ```
 
 This command will:
@@ -39,7 +42,7 @@ This command will:
 ### Check Deployment Status
 
 ```powershell
-Get-TasksByMeAzureWebApp -WebAppName "my-tasks-app -Verbose"
+Get-TasksByMeAzureWebApp -WebAppName "my-tasks-app" -Verbose
 ```
 
 or browse to:
@@ -47,6 +50,8 @@ or browse to:
 ```
 https://my-tasks-app.azurewebsites.net
 ```
+
+The app should be up and running.
 
 ### Remove Deployment
 
