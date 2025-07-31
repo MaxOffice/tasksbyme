@@ -4,7 +4,7 @@
 @{
     RootModule = 'MaxOffice.TasksByMe.Azure.psm1'
 
-    ModuleVersion = '1.0.0'
+    ModuleVersion = '1.0.2'
 
     CompatiblePSEditions = @('Desktop', 'Core')
 
@@ -45,8 +45,8 @@
             ProjectUri = 'https://github.com/maxoffice/tasksbyme'
             IconUri = 'https://raw.githubusercontent.com/maxoffice/tasksbyme/main/assets/logo.png'
                         ReleaseNotes = @'
-1.0.0 - Initial release
-- Install-TasksByMeAzureWebApp : Deploy Tasks by Me web app as an Azure Web App (free tier) from the GitHub repo
+1.0.2 - Bug fix
+- Install-TasksByMeAzureWebApp : Deploy Tasks by Me web app as an Azure Web App (free tier) from the GitHub repo (corrected to detect new not found error text)
 - Get-TasksByMeAzureWebApp     : Display comprehensive information for Tasks by Me Azure Web App
 - Remove-TasksByMeAzureWebApp  : Delete Tasks by Me Azure Web App
 '@

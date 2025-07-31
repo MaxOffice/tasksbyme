@@ -82,10 +82,15 @@ function TestWebsiteExists {
             Write-Verbose "Website does not exist (connection failed)"
             return $false
         }
-        elseif ($_ -like "*Name or service not known*") {
+        elseif ($_ -like "*Name or service not known.*") {
             Write-Verbose "Website does not exist (Azure Web App service not found)"
             return $false
         }
+        elseif ($_ -like "*No such host is known*") {
+            Write-Verbose "Website does not exist (Azure Web App service not found)"
+            return $false
+        }
+
         else {
             # Website exists but returned an error (500, etc.)
             Write-Verbose "Website exists but returned error: $_"
