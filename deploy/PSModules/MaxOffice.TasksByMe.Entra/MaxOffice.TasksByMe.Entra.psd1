@@ -4,7 +4,7 @@
 @{
     RootModule = 'MaxOffice.TasksByMe.Entra.psm1'
 
-    ModuleVersion = '1.0.0'
+    ModuleVersion = '1.0.1'
 
     CompatiblePSEditions = @('Desktop', 'Core')
 
@@ -56,8 +56,8 @@
             ProjectUri = 'https://github.com/maxoffice/tasksbyme'
             IconUri = 'https://raw.githubusercontent.com/maxoffice/tasksbyme/main/assets/logo.png'
             ReleaseNotes = @'
-1.0.0 - Initial release
-- Install-TasksByMeApp : Create new Tasks by Me Entra ID app with logo and client secret
+1.0.1 - Bug Fix
+- Install-TasksByMeApp : Create new Tasks by Me Entra ID app with logo and client secret (corrected logo upload)
 - Set-TasksByMeAppUrl  : Set location of Tasks by Me web app
 - Get-TasksByMeApp     : Display comprehensive information for Tasks by Me Entra ID app
 - Remove-TasksByMeApp  : Delete Tasks by Me Entra ID app

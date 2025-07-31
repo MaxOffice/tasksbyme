@@ -91,7 +91,11 @@ function SetAppLogo {
         $tempFile = [System.IO.Path]::GetTempFileName() + ".png"
         Invoke-WebRequest -Uri $script:LogoUrl -OutFile $tempFile -TimeoutSec 30
 
-        Set-MgApplicationLogo -ApplicationId $AppId -InFile $tempFile
+        # Set-MgApplicationLogo -ApplicationId $AppId -InFile $tempFile 
+        # The line above is replaced by the line below, because of
+        # content-type related errors. See:
+        # https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/935
+        Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/beta/applications/$AppId/logo" -Method PUT -InputFilePath $tempFile -ContentType "image/png"
         Write-Verbose "Application logo set successfully"
 
         Remove-Item $tempFile -Force
