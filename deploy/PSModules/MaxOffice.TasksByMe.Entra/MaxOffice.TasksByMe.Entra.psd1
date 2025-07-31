@@ -4,7 +4,7 @@
 @{
     RootModule = 'MaxOffice.TasksByMe.Entra.psm1'
 
-    ModuleVersion = '1.0.1'
+    ModuleVersion = '1.0.2'
 
     CompatiblePSEditions = @('Desktop', 'Core')
 
@@ -23,11 +23,11 @@
     RequiredModules = @(
         @{
             ModuleName = 'Microsoft.Graph.Applications'
-            ModuleVersion = '2.0.0'
+            ModuleVersion = '2.29.1'
         },
         @{
             ModuleName = 'Microsoft.Graph.Authentication'
-            ModuleVersion = '2.0.0'
+            ModuleVersion = '2.29.1'
         }
     )
 
@@ -56,8 +56,13 @@
             ProjectUri = 'https://github.com/maxoffice/tasksbyme'
             IconUri = 'https://raw.githubusercontent.com/maxoffice/tasksbyme/main/assets/logo.png'
             ReleaseNotes = @'
+1.0.2 - Bug Fix
+- Upgraded version requirements for dependencies
+- Reverted to using Set-MgApplicationLogo for logo upload
 1.0.1 - Bug Fix
-- Install-TasksByMeApp : Create new Tasks by Me Entra ID app with logo and client secret (corrected logo upload)
+- Re-implemented logo upload using Invoke-MgGraphRequest
+1.0.0
+- Install-TasksByMeApp : Create new Tasks by Me Entra ID app with logo and client secret
 - Set-TasksByMeAppUrl  : Set location of Tasks by Me web app
 - Get-TasksByMeApp     : Display comprehensive information for Tasks by Me Entra ID app
 - Remove-TasksByMeApp  : Delete Tasks by Me Entra ID app
