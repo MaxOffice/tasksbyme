@@ -16,9 +16,6 @@
         },
         "sessionSecret": {
             "value": "A-RANDOM-STRING"
-        },
-        "gitRepoUrl": {
-            "value": "YOUR-GIT-REPO"
         }
     }
 }

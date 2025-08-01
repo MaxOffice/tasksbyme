@@ -38,7 +38,8 @@ function DownloadArmTemplate {
         Write-Verbose "Downloading ARM template from: $script:ArmTemplateUrl"
         $tempFile = [System.IO.Path]::GetTempFileName() + ".json"
 
-        Invoke-WebRequest -Uri $script:ArmTemplateUrl -OutFile $tempFile -TimeoutSec 30
+        # Invoke-WebRequest -Uri $script:ArmTemplateUrl -OutFile $tempFile -TimeoutSec 30
+        Copy-Item -Path ~/projects/maxoffice/tasksbyme/deploy/azure/arm-template.json -Destination $tempFile
 
         # Validate JSON content
         $content = Get-Content $tempFile -Raw | ConvertFrom-Json
@@ -82,6 +83,10 @@ function TestWebsiteExists {
             Write-Verbose "Website does not exist (connection failed)"
             return $false
         }
+        elseif ($_.Exception.HttpRequestError -eq "NameResolutionError" ) {
+            Write-Verbose "Website does not exist (name resolution failed)"
+            return $false
+        }
         elseif ($_ -like "*Name or service not known.*") {
             Write-Verbose "Website does not exist (Azure Web App service not found)"
             return $false
@@ -90,7 +95,6 @@ function TestWebsiteExists {
             Write-Verbose "Website does not exist (Azure Web App service not found)"
             return $false
         }
-
         else {
             # Website exists but returned an error (500, etc.)
             Write-Verbose "Website exists but returned error: $_"
@@ -104,6 +108,18 @@ function GenerateSessionSecret {
     $bytes = New-Object byte[] 32
     [System.Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($bytes)
     return [Convert]::ToBase64String($bytes)
+}
+
+# Helper function to choose hosting SKU from string
+function GetHostingPlanSkuFromString {
+    param([string]$SkuString)
+
+    switch ($SkuString.ToLower()) {
+        "free" { return @{ name = 'F1'; tier = 'Free' } }
+        "basic" { return @{ name = 'B1'; tier = 'Basic' } }
+        "standard" { return @{ name = 'S1'; tier = 'Standard' } }
+        default { throw "Unsupported SKU: $SkuString" }
+    }
 }
 
 <#
@@ -132,6 +148,15 @@ The Entra ID application client secret. If not provided, will create new Entra I
 .PARAMETER GitRepoUrl
 The Git repository URL for deployment. Defaults to the standard repository.
 
+.PARAMETER GitRepoBranch
+The Git repository branch for deployment. Defaults to "main".
+
+.PARAMETER Region
+The Azure region in which the app will be deployed. Defaults to "East Us".
+
+.PARAMETER HostingPlanTier
+The Azure hosting plan for the web app. Possible values are "Free", "Basic" and "Standard". Defaults to "Free".
+
 .EXAMPLE
 Install-TasksByMeAzureWebApp -WebAppName "mytasks"
 
@@ -140,6 +165,13 @@ Install-TasksByMeAzureWebApp -WebAppName "mytasks" -ResourceGroupName "myresourc
 
 .EXAMPLE
 Install-TasksByMeAzureWebApp -WebAppName "mytasks" -TenantId "xxx" -ClientId "yyy" -ClientSecret "zzz"
+
+.EXAMPLE
+Install-TasksByMeAzureWebApp -WebAppName "mytasks" -Region "East Us"
+
+.EXAMPLE
+Install-TasksByMeAzureWebApp -WebAppName "mytasks" -Region "East Us" -HostingPlanTier "Basic"
+
 #>
 function Install-TasksByMeAzureWebApp {
     [CmdletBinding(DefaultParameterSetName = 'CreateApp')]
@@ -160,7 +192,17 @@ function Install-TasksByMeAzureWebApp {
         [string]$ClientSecret,
 
         [Parameter()]
-        [string]$GitRepoUrl = $script:DefaultGitRepoUrl
+        [string]$GitRepoUrl = $script:DefaultGitRepoUrl,
+
+        [Parameter()]
+        [string]$GitRepoBranch = 'main',
+
+        [Parameter()]
+        [string]$Region = 'East US',
+
+        [Parameter()]
+        [ValidateSet("Free", "Basic", "Standard")]
+        [string]$HostingPlanTier = "Free"
     )
 
     # Initialize tracking variables
@@ -218,7 +260,7 @@ function Install-TasksByMeAzureWebApp {
         $existingRg = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction SilentlyContinue
         if (-not $existingRg) {
             Write-Verbose "Creating resource group: $ResourceGroupName"
-            $location = "East US"  # Default location
+            $location = $Region  # Default location
             New-AzResourceGroup -Name $ResourceGroupName -Location $location | Out-Null
             $createdResourceGroup = $true  # TRACKING: We created this resource group
             Write-Verbose "Created resource group in location: $location"
@@ -227,14 +269,19 @@ function Install-TasksByMeAzureWebApp {
             Write-Verbose "Using existing resource group: $ResourceGroupName"
         }
 
+        # Get SKU details from parameter
+        $sku = GetHostingPlanSkuFromString -SkuString $HostingPlanTier
+
         # Prepare deployment parameters
         $deploymentParams = @{
-            webAppName    = $WebAppName
-            tenantId      = $TenantId
-            clientId      = $ClientId
-            clientSecret  = $ClientSecret
-            sessionSecret = $sessionSecret
-            gitRepoUrl    = $GitRepoUrl
+            webAppName     = $WebAppName
+            tenantId       = $TenantId
+            clientId       = $ClientId
+            clientSecret   = $ClientSecret
+            sessionSecret  = $sessionSecret
+            gitRepoUrl     = $GitRepoUrl
+            gitRepoBranch  = $GitRepoBranch
+            hostingPlanSku = $sku
         }
 
         # Deploy ARM template

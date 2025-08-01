@@ -3,22 +3,89 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "webAppName": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "A globally unique name for the Tasks by Me web app, using lower-case letters, digits and - only. It will be deployed as https://WEBAPPNAME.azurewebsites.net",
+                "displayName": "Web App Name"
+            }
         },
         "tenantId": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "The ID of the Microsoft 365 tenant to which this web app will be connected.",
+                "displayName": "Tenant ID"
+            }
         },
         "clientId": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "The Client ID using which this web app will connect to the Microsoft 365 tenant.",
+                "displayName": "Client ID"
+            }
         },
         "clientSecret": {
-            "type": "securestring"
+            "type": "securestring",
+            "metadata": {
+                "description": "The Client secret using which this web app will connect to the Microsoft 365 tenant.",
+                "displayName": "Client Secret"
+            }
         },
         "sessionSecret": {
-            "type": "securestring"
+            "type": "securestring",
+            "defaultValue": "[concat('sess-', newGuid())]",
+            "metadata": {
+                "description": "A random string using which session data in this web app will be encrypted.",
+                "displayName": "Session Secret"
+            }
         },
         "gitRepoUrl": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "https://github.io/maxoffice/tasksbyme",
+            "metadata": {
+                "description": "The Git repository from which this web app will be deployed.",
+                "displayName": "Git Repository URL"
+            }
+        },
+        "gitRepoBranch": {
+            "type": "string",
+            "defaultValue": "main",
+            "metadata": {
+                "description": "The branch of the Git repository from which this web app will be deployed.",
+                "displayName": "Git Repository Branch"
+            }
+        },
+        "hostingPlanSku": {
+            "type": "object",
+            "defaultValue": {
+                "name": "F1",
+                "tier": "Free"
+            },
+            "allowedValues": [
+                {
+                    "name": "F1",
+                    "tier": "Free"
+                },
+                {
+                    "name": "B1",
+                    "tier": "Basic"
+                },
+                {
+                    "name": "S1",
+                    "tier": "Standard"
+                },
+                {
+                    "name": "P1v2",
+                    "tier": "PremiumV2"
+                },
+                {
+                    "name": "P1v3",
+                    "tier": "PremiumV3"
+                }
+            ],
+            "metadata": {
+                "description": "The pricing tier for the App Service Plan",
+                "displayName": "Hosting Plan SKU"
+            }
         }
     },
     "variables": {
@@ -30,10 +97,7 @@
             "apiVersion": "2022-03-01",
             "name": "[variables('hostingPlanName')]",
             "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "F1",
-                "tier": "Free"
-            },
+            "sku": "[parameters('hostingPlanSku')]",
             "properties": {
                 "reserved": true
             }
@@ -97,7 +161,7 @@
             ],
             "properties": {
                 "repoUrl": "[parameters('gitRepoUrl')]",
-                "branch": "main",
+                "branch": "[parameters('gitRepoBranch')]",
                 "isManualIntegration": true
             }
         }
@@ -105,7 +169,7 @@
     "outputs": {
         "webAppUrl": {
             "type": "string",
-            "value": "[concat('https://', parameters('webAppName'), '.azurewebsites.net')]"
+            "value": "[uri(concat('https://', parameters('webAppName'), '.azurewebsites.net'),'/')]"
         }
     }
 }
